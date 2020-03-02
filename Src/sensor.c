@@ -89,7 +89,9 @@ void readTemperature() {
 	if(currentSensor == 0) {
 		currentSensor = 1; // Set to read first sensor
 
-		xSemaphoreTake(SPIMutexHandle, portMAX_DELAY);
+		if(xSemaphoreTake(SPIMutexHandle, portMAX_DELAY) != pdPASS) {
+			return;
+		}
 
 		// Set chip select low to start the data transmission from MAX6675 Sensor
 		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
@@ -109,7 +111,9 @@ void readTemperature() {
 	} else if (currentSensor == 1) {
 		currentSensor = 2; // Set to read second sensor
 
-		xSemaphoreTake(SPIMutexHandle, portMAX_DELAY);
+		if(xSemaphoreTake(SPIMutexHandle, portMAX_DELAY) != pdPASS) {
+			return;
+		}
 
 		// Set chip select low to start the data transmission from MAX6675 Sensor
 		HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_RESET);

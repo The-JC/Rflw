@@ -27,6 +27,7 @@
 #include "config.h"
 #include "OvenMode.h"
 
+extern osMutexId xLCDMutexHandle;
 extern osThreadId LCDHandle;
 
 void menuValChanger(uint32_t *ptr);
@@ -194,7 +195,11 @@ void menuValChanger(uint32_t *ptr) {
 	uint8_t done = 0;
 	uint8_t update = 1;
 
+	setMode(EVENT_NONE);
+
 	siprintf(oldbuf, "%u",(int) old);
+
+	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
 
 	while(!done) {
 		if(update) {
@@ -224,15 +229,19 @@ void menuValChanger(uint32_t *ptr) {
 				break;
 			case PRESS_SELECT:
 				*ptr = new;
+				setMode(EVENT_MENU | EVENT_UPADTE);
 				done = 1;
 				break;
 			default:
 				break;
 		}
 	}
+
+	xSemaphoreGive(xLCDMutexHandle);
 }
 
 void menuDraw() {
+	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
 	uint8_t menuPos;
 	uint8_t drawPos;
 	const struct MENU_t *menu;
@@ -287,6 +296,8 @@ void menuDraw() {
 //		SSD1306_PutS("<-", &Font_7x10, WHITE);
 //	}
 	SSD1306_UpdateScreen();
+
+	xSemaphoreGive(xLCDMutexHandle);
 }
 
 void Menu_RunBake() {

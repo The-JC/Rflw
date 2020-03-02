@@ -28,6 +28,8 @@
 #include "sensor.h"
 #include "control.h"
 
+extern osMutexId xLCDMutexHandle;
+
 void displayBake();
 void displayReflow();
 
@@ -62,6 +64,8 @@ void displayBake() {
 	uint32_t event;
 	char buffer[10];
 
+	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
+
 	while(1) {
 		osDelay(100);
 		SSD1306_Fill(BLACK);
@@ -80,6 +84,8 @@ void displayBake() {
 		SSD1306_GotoY(53);
 		SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 
+		memset(buffer, 0, 10);
+
 		SSD1306_UpdateScreen();
 
 		event = getMode();
@@ -90,6 +96,8 @@ void displayBake() {
 			clearUpdate();
 		}
 	}
+
+	xSemaphoreGive(xLCDMutexHandle);
 }
 
 void displayReflow() {

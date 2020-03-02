@@ -124,8 +124,9 @@ void controlTask(void const * argument) {
 
 void controlInputTask() {
 	const portTickType xDelay = 100 / portTICK_RATE_MS;
+	uint8_t done=0;
 
-	while(1) {
+	while(!done) {
 		vTaskDelay(xDelay);
 
 		uint8_t event = inputGetEvent();
@@ -136,15 +137,15 @@ void controlInputTask() {
 			case PRESS_DOWN:
 				break;
 			case PRESS_SELECT:
-				setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
-				vTaskDelete(NULL); // Delete itself
+				done = 1;
 				break;
 			default:
 				break;
 		}
 
 	}
-	vTaskDelete(controlInputHandle);
+	setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
+	vTaskDelete(controlInputHandle); // Delete itself
 }
 
 void controlBake() {
@@ -152,8 +153,8 @@ void controlBake() {
 
 	const portTickType xDelay = 1000 / portTICK_RATE_MS;
 	while(1) {
-//		vTaskDelay(xDelay);
-		osDelay(1000);
+		vTaskDelay(xDelay);
+//		osDelay(1000);
 
 		readTemperature();
 		uint8_t p = control(getTemperature1());
