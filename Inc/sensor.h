@@ -28,10 +28,10 @@ enum {
 	TRANSFER_ERROR
 };
 
-extern SPI_HandleTypeDef *hspi2;
+extern SPI_HandleTypeDef hspi2;
 
 void readTemperature(void);
-float getTemperature1(void);
-float getTemperature2(void);
+uint16_t getTemperature1(void);
+uint16_t getTemperature2(void);
 
 #endif /* SENSOR_H_ */

@@ -23,20 +23,26 @@
 extern osMutexId SPIMutexHandle;
 
 uint8_t currentSensor;
-float temperature1;
-float temperature2;
+volatile uint32_t temperature1;
+volatile uint32_t temperature2;
 volatile uint16_t rxBuffer[1];
 
-uint8_t isDataValid(volatile uint16_t *buffer);
-float convertToTemprature(volatile uint16_t *buffer);
+uint8_t isDataInvalid(volatile uint16_t *buffer);
+uint16_t convertToTemprature(uint16_t *buffer);
 void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi);
 
-float getTemperature1(void) {
+volatile uint16_t getTemperature1(void) {
 	return temperature1;
 }
 
-float getTemperature2(void) {
+volatile uint16_t getTemperature2(void) {
 	return temperature2;
+}
+
+void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi) {
+	currentSensor = 0;
+	HAL_SPI_DeInit(hspi);
+	HAL_SPI_Init(hspi);
 }
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi) {
@@ -53,24 +59,27 @@ void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 	if(currentSensor == 1) {
 		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
 
-		if(!isDataValid(rxBuffer)) {
-			temperature1 = -1;
+		if(isDataInvalid(rxBuffer)) {
+			temperature1 = 2;
+			*rxBuffer = 0x0000;
 			return;
 		}
 
 		temperature1 = convertToTemprature(rxBuffer);
-		*rxBuffer = 0x0;
+		*rxBuffer = 0x0000;
 		return;
 	} else if(currentSensor == 2) {
+		HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_SET);
 		currentSensor = 0;
 
-		if(!isDataValid(rxBuffer)) {
-			temperature2 = -1;
+		if(isDataInvalid(rxBuffer)) {
+			temperature2 = 2;
+			*rxBuffer = 0x0000;
 			return;
 		}
 
 		temperature2 = convertToTemprature(rxBuffer);
-		*rxBuffer = 0x0;
+		*rxBuffer = 0x0000;
 		return;
 	}
 }
@@ -85,14 +94,17 @@ void readTemperature() {
 		// Set chip select low to start the data transmission from MAX6675 Sensor
 		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_RESET);
 
-		if(HAL_SPI_Receive_IT(hspi2, (uint8_t*)rxBuffer, 2) != HAL_OK) {
+		if(HAL_SPI_Receive_IT(&hspi2, (uint8_t*)rxBuffer, 2) != HAL_OK) {
 			Error_Handler();
 		}
 
 		osDelay(1);
+		if(HAL_SPI_GetState(&hspi2) != HAL_SPI_STATE_READY) {
+			HAL_SPI_Abort(&hspi2);
+		}
 		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
-
 		xSemaphoreGive(SPIMutexHandle);
+
 		return;
 	} else if (currentSensor == 1) {
 		currentSensor = 2; // Set to read second sensor
@@ -102,7 +114,7 @@ void readTemperature() {
 		// Set chip select low to start the data transmission from MAX6675 Sensor
 		HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_RESET);
 
-		if(HAL_SPI_Receive_IT(hspi2, (uint8_t*)rxBuffer, 2) != HAL_OK) {
+		if(HAL_SPI_Receive_IT(&hspi2, (uint8_t*)rxBuffer, 2) != HAL_OK) {
 			Error_Handler();
 		}
 
@@ -114,16 +126,16 @@ void readTemperature() {
 	}
 }
 
-uint8_t isDataValid(volatile uint16_t *buffer) {
+uint8_t isDataInvalid(volatile uint16_t *buffer) {
 	// Check if third last bit is not zero
-	return ((*rxBuffer) >> 2) & 0b0000000000000001;
+	return ((*buffer) >> 2) & 0b0000000000000001;
 }
 
-float convertToTemprature(volatile uint16_t *buffer) {
+uint16_t convertToTemprature(uint16_t *buffer) {
 	/*Read data out of first sensor
 	 * First bit always 0 last 2 too
 	 * Third last bit is 1 when no sensor is connected
 	 * Shift 3 right and mask first 4 bits to read value
 	 */
-	return ((float)(((*rxBuffer) >> 3) & 0b0000111111111111))/4;
+	return ((((*buffer) >> 3) & 0b0000111111111111));
 }
