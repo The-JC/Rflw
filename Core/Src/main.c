@@ -110,6 +110,10 @@ void InitOS(void) {
 	osThreadDef(menu, menuTask, osPriorityIdle, 0, 128);
 	menuHandle = osThreadCreate(osThread(menu), NULL);
 
+	/* definition and creation of control */
+	osThreadDef(control, controlTask, osPriorityAboveNormal, 0, 128);
+	controlHandle = osThreadCreate(osThread(control), NULL);
+
 	/* Start scheduler */
 	osKernelStart();
 }

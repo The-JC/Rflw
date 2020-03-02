@@ -19,8 +19,8 @@
 #include "Reflow.h"
 
 #include "cmsis_os.h"
-#include "control.h"
 #include "OvenMode.h"
+#include "control.h"
 
 int main(void) {
 	HAL_Init();
@@ -28,15 +28,3 @@ int main(void) {
 	modeEventGroup = xEventGroupCreate();
 	InitOS(); // Start scheduler
 }
-
-//void inputTask(void const * argument) {
-//	while(1) {
-//		osDelay(1);
-//	}
-//}
-
-//void menuTask(void const * argument) {
-//	while(1) {
-//		osDelay(1);
-//	}
-//}

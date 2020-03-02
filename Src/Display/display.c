@@ -32,7 +32,7 @@ void displayBake();
 void displayReflow();
 
 void checkDisplayEvent(uint32_t event);
-void toTempratureBuffer(char *buf, uint8_t len, float temp);
+void toTempratureBuffer(char *buf, uint8_t len, uint16_t temp);
 
 void LCDInit() {
 	SSD1306_Init();
@@ -74,6 +74,8 @@ void displayBake() {
 		SSD1306_GotoY(43);
 		SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 
+		memset(buffer, 0, 10);
+
 		toTempratureBuffer(buffer, 10, getTemperature2());
 		SSD1306_GotoY(53);
 		SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
@@ -83,8 +85,9 @@ void displayBake() {
 		event = getMode();
 		if(event & ~(EVENT_BAKE | EVENT_UPADTE)) {
 			break; // Cancel the while loop to check the display event for new instructions
-		} else if(event & EVENT_UPADTE) {
+		} else if(!(event & EVENT_UPADTE)) {
 			xEventGroupWaitBits(modeEventGroup, EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
+			clearUpdate();
 		}
 	}
 }
@@ -111,10 +114,10 @@ void checkDisplayEvent(EventBits_t event) {
 	}
 }
 
-void toTempratureBuffer(char *buf, uint8_t len, float temp) {
-	int tmpInt1 = temp;
-	float tmpFrac = temp-tmpInt1;
-	int tmpInt2 = trunc(tmpFrac*100);
+void toTempratureBuffer(char *buf, uint8_t len, volatile uint16_t temp) {
+
+	int tmpInt1 = temp/4;
+	int tmpInt2 = (temp-tmpInt1*4)*25;
 
 	sprintf(buf, "%d.%02d°C", tmpInt1, tmpInt2);
 }
