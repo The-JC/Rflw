@@ -37,7 +37,7 @@ uint8_t inputGetEvent() {
 void inputTask(void const *argument) {
 	xInputQueue = xQueueCreate(INPUT_QUEUE_SIZE, sizeof(uint8_t));
 
-	const portTickType xDelay = 100 / portTICK_RATE_MS;
+	const TickType_t xDelay = 100 / portTICK_PERIOD_MS; // 100ms
 	uint8_t eventCurrent;
 	uint8_t eventLast;
 

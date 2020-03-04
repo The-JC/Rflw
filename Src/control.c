@@ -151,10 +151,9 @@ void controlInputTask() {
 void controlBake() {
 	xTaskCreate(controlInputTask, "CONTROL_IN", 128, NULL, osPriorityLow, &controlInputHandle);
 
-	const portTickType xDelay = 1000 / portTICK_RATE_MS;
+	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
 	while(1) {
 		vTaskDelay(xDelay);
-//		osDelay(1000);
 
 		readTemperature();
 		uint8_t p = control(getTemperature1());
