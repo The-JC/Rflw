@@ -31,8 +31,13 @@
 #define CONTROL_TOLERANCE 5
 #define CONTROL_MAX_INTEGRAL 100
 
+#define CONTROL_MAX_TEMP 220
+
 #define CONTROL_Kp 1.8
 #define CONTROL_Ki 0.25
 #define CONTROL_Kd 25
+
+// 0 normally low 1 normally high
+#define HEATER_POLARITY 1
 
 #endif /* CONFIG_H_ */

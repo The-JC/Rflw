@@ -60,7 +60,7 @@ void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
 
 		if(isDataInvalid(rxBuffer)) {
-			temperature1 = 2;
+			temperature1 = 0;
 			*rxBuffer = 0x0000;
 			return;
 		}
@@ -73,7 +73,7 @@ void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 		currentSensor = 0;
 
 		if(isDataInvalid(rxBuffer)) {
-			temperature2 = 2;
+			temperature2 = 0;
 			*rxBuffer = 0x0000;
 			return;
 		}
@@ -101,9 +101,6 @@ void readTemperature() {
 		}
 
 		osDelay(1);
-		if(HAL_SPI_GetState(&hspi2) != HAL_SPI_STATE_READY) {
-			HAL_SPI_Abort(&hspi2);
-		}
 		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
 		xSemaphoreGive(SPIMutexHandle);
 

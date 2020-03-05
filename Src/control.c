@@ -28,10 +28,13 @@ uint32_t Kp = CONTROL_Kd*100;
 uint32_t Ki = CONTROL_Ki*100;
 uint32_t Kd = CONTROL_Kd*100;
 
+uint16_t w=0;
+
 uint8_t control(uint16_t x);
 uint32_t calculate_dt();
 
 void controlInputTask();
+void controlBake();
 void controlReflow();
 
 osThreadId controlInputHandle;
@@ -57,7 +60,14 @@ typedef struct {
 static PID_t pid;
 
 uint16_t getSetTemperature() {
-	return pid.w;
+	return w;
+}
+
+void setTemperature(uint16_t w) {
+	if(w<0) w = 0;
+	if(w>CONTROL_MAX_TEMP) w = CONTROL_MAX_TEMP;
+
+	pid.w = w;
 }
 
 uint8_t control(uint16_t x) {
@@ -102,6 +112,7 @@ uint32_t calculate_dt() {
 }
 
 void controlTask(void const * argument) {
+	updatePIDValues();
 	while(1) {
 		osDelay(1);
 		EventBits_t event = xEventGroupWaitBits(modeEventGroup, EVENT_BAKE | EVENT_REFLOW, pdFALSE, pdFALSE, portMAX_DELAY);
@@ -132,9 +143,12 @@ void controlInputTask() {
 		uint8_t event = inputGetEvent();
 		switch (event) {
 			case PRESS_UP:
-
+				w+=10;
+				setUpdate();
 				break;
 			case PRESS_DOWN:
+				w-=10;
+				setUpdate();
 				break;
 			case PRESS_SELECT:
 				done = 1;
@@ -153,11 +167,22 @@ void controlBake() {
 
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
 	while(1) {
-		vTaskDelay(xDelay);
+		if(pid.w != w) pid.w = w;
 
+		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
 		readTemperature();
-		uint8_t p = control(getTemperature1());
+		uint8_t p = control(getTemperature2()/4);
 		setUpdate();
+
+		const TickType_t xDelayOffset = (xDelay * p)/100;
+
+		HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, !HEATER_POLARITY);
+
+		vTaskDelay(xDelayOffset);
+
+		HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
+
+		vTaskDelay(xDelay - xDelayOffset);
 	}
 }
 
