@@ -45,7 +45,9 @@ I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi2;
 
-osThreadId defaultTaskHandle;
+WWDG_HandleTypeDef hwwdg;
+
+osThreadId systemMonitorHandle;
 osThreadId inputHandle;
 osThreadId menuHandle;
 osThreadId controlHandle;
@@ -62,7 +64,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
-void StartDefaultTask(void const * argument);
+static void MX_WWDG_Init(void);
+void systemMonitorTask(void const * argument);
 extern void inputTask(void const * argument);
 extern void menuTask(void const * argument);
 extern void controlTask(void const * argument);
@@ -81,6 +84,7 @@ void InitSystem(void) {
 	MX_GPIO_Init();
 	MX_I2C1_Init();
 	MX_SPI2_Init();
+	MX_WWDG_Init();
 
 //	HAL_SPI_RegisterCallback();
 }
@@ -95,8 +99,8 @@ void InitOS(void) {
 	osMutexDef(xLCDMutex);
 	xLCDMutexHandle = osMutexCreate(osMutex(xLCDMutex));
 
-	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+	osThreadDef(systemMonitorTask, systemMonitorTask, osPriorityHigh, 0, 128);
+	systemMonitorHandle = osThreadCreate(osThread(systemMonitorTask), NULL);
 
 	/* definition and creation of input */
 	osThreadDef(input, inputTask, osPriorityLow, 0, 128);
@@ -238,6 +242,36 @@ static void MX_SPI2_Init(void)
 }
 
 /**
+  * @brief WWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_WWDG_Init(void)
+{
+
+  /* USER CODE BEGIN WWDG_Init 0 */
+
+  /* USER CODE END WWDG_Init 0 */
+
+  /* USER CODE BEGIN WWDG_Init 1 */
+
+  /* USER CODE END WWDG_Init 1 */
+  hwwdg.Instance = WWDG;
+  hwwdg.Init.Prescaler = WWDG_PRESCALER_8;
+  hwwdg.Init.Window = 96;
+  hwwdg.Init.Counter = 127;
+  hwwdg.Init.EWIMode = WWDG_EWI_DISABLE;
+  if (HAL_WWDG_Init(&hwwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN WWDG_Init 2 */
+
+  /* USER CODE END WWDG_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -256,7 +290,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD_Power_GPIO_Port, LD_Power_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LD_Power_GPIO_Port, LD_Power_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, CS2_Pin|CS_Pin, GPIO_PIN_SET);
@@ -270,7 +304,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : LD_Power_Pin */
   GPIO_InitStruct.Pin = LD_Power_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD_Power_GPIO_Port, &GPIO_InitStruct);
@@ -300,21 +334,22 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_systemMonitorTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the systemMonitor thread.
   * @param  argument: Not used 
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+/* USER CODE END Header_systemMonitorTask */
+void systemMonitorTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+	const TickType_t xDelay = 48 / portTICK_PERIOD_MS; // 48ms
   /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
+	while(1) {
+		vTaskDelay(xDelay);
+		HAL_WWDG_Refresh(&hwwdg);
+	}
   /* USER CODE END 5 */ 
 }
 
@@ -348,7 +383,8 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
 	while(1) {
-
+		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
+		osDelay(100);
 	}
   /* USER CODE END Error_Handler_Debug */
 }

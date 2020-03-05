@@ -1,8 +1,9 @@
 #MicroXplorer Configuration settings - do not modify
 FREERTOS.FootprintOK=true
-FREERTOS.IPParameters=Tasks01,FootprintOK,Mutexes01,configTOTAL_HEAP_SIZE
+FREERTOS.IPParameters=Tasks01,FootprintOK,Mutexes01,configTOTAL_HEAP_SIZE,configCHECK_FOR_STACK_OVERFLOW
 FREERTOS.Mutexes01=I2CMutex,Dynamic,NULL;xLCDMutex,Dynamic,NULL;SPIMutex,Dynamic,NULL
-FREERTOS.Tasks01=defaultTask,0,128,StartDefaultTask,Default,NULL,Dynamic,NULL,NULL;input,-2,128,inputTask,As external,NULL,Dynamic,NULL,NULL;menu,-3,128,menuTask,As external,NULL,Dynamic,NULL,NULL;control,1,256,controlTask,As external,NULL,Dynamic,NULL,NULL;LCD,-3,128,LCDTask,As external,NULL,Dynamic,NULL,NULL
+FREERTOS.Tasks01=systemMonitor,3,128,systemMonitorTask,Default,NULL,Dynamic,NULL,NULL;input,-2,128,inputTask,As external,NULL,Dynamic,NULL,NULL;menu,-3,128,menuTask,As external,NULL,Dynamic,NULL,NULL;control,1,128,controlTask,As external,NULL,Dynamic,NULL,NULL;LCD,-3,128,LCDTask,As external,NULL,Dynamic,NULL,NULL
+FREERTOS.configCHECK_FOR_STACK_OVERFLOW=1
 FREERTOS.configTOTAL_HEAP_SIZE=4096
 File.Version=6
 I2C1.I2C_Mode=I2C_Fast
