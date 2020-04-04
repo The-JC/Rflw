@@ -187,7 +187,7 @@ void menuAction() {
 }
 
 void menuValChanger(uint32_t *ptr) {
-	const portTickType xDelay = 100 / portTICK_RATE_MS;
+	const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
 	uint32_t old = *ptr;
 	uint32_t new = old;
 	char oldbuf[14];

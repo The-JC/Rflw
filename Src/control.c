@@ -187,6 +187,11 @@ void controlBake() {
 }
 
 void controlReflow() {
+	xTaskCreate(controlInputTask, "CONTROL_IN", 128, NULL, osPriorityLow, &controlInputHandle);
 
+	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
+	while(1) {
+
+	}
 }
 

@@ -101,7 +101,32 @@ void displayBake() {
 }
 
 void displayReflow() {
+	uint32_t event;
+	char buffer[10];
 
+	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
+
+	const TickType_t xDelay = 100 / portTICK_PERIOD_MS; // 100ms
+	while(1) {
+		vTaskDelay(xDelay);
+		SSD1306_Fill(BLACK);
+
+		sprintf(buffer, );
+
+		toTempratureBuffer(buffer, 10, getTemperature1());
+		SSD1306_GotoY(43);
+		SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+
+		memset(buffer, 0, 10);
+
+		toTempratureBuffer(buffer, 10, getTemperature2());
+		SSD1306_GotoY(53);
+		SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+
+		memset(buffer, 0, 10);
+
+		SSD1306_UpdateScreen();
+	}
 }
 
 void checkDisplayEvent(EventBits_t event) {
