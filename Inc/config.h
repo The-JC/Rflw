@@ -37,6 +37,8 @@
 #define CONTROL_Ki 0.25
 #define CONTROL_Kd 25
 
+#define REFLOW_MAX_POINTS 10
+
 // 0 normally low 1 normally high
 #define HEATER_POLARITY 1
 

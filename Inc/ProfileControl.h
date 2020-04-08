@@ -21,20 +21,17 @@
 
 #include "stm32f1xx_hal.h"
 
+#include "control.h"
+
 typedef struct {
 	const uint32_t time;
 	const uint16_t temprature;
 } DATAPOINT_t;
 
-typedef struct {
-	uint8_t id;
-	char* name;
-	uint8_t pointslen;
-	const DATAPOINT_t *points[10];
-} CURVE_t;
+extern const DATAPOINT_t basicPoints[2];
+extern const DATAPOINT_t advancedPoints[3];
 
-#define CURVESLEN 2
-extern CURVE_t curves[CURVESLEN];
+volatile DATAPOINT_t *currentCurvePtr;
 
 /**
  * This function sets w of @control at the time according to the Curve
@@ -42,6 +39,6 @@ extern CURVE_t curves[CURVESLEN];
  * @param curve: curve to follow
  * @returns 0 or 1 -> 1 finished; 0 failed
  */
-uint8_t profileControl(CURVE_t curve);
+void profileControlTask();
 
 #endif /* PROFILECONTROL_H_ */

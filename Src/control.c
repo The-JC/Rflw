@@ -24,11 +24,13 @@
 #include "input.h"
 #include "sensor.h"
 
+extern void profileControlTask();
+
 uint32_t Kp = CONTROL_Kd*100;
 uint32_t Ki = CONTROL_Ki*100;
 uint32_t Kd = CONTROL_Kd*100;
 
-uint16_t w=0;
+volatile uint32_t w=0;
 
 uint8_t control(uint16_t x);
 uint32_t calculate_dt();
@@ -38,13 +40,14 @@ void controlBake();
 void controlReflow();
 
 osThreadId controlInputHandle;
+osThreadId controlReflowHandle;
 
 typedef struct {
 
 } CONTROL_t;
 
 typedef struct {
-	uint16_t w;
+	uint32_t w;
 	float Kp;
 	float Ki;
 	float Kd;
@@ -113,6 +116,9 @@ uint32_t calculate_dt() {
 
 void controlTask(void const * argument) {
 	updatePIDValues();
+	xTaskCreate(controlInputTask, "CONTROL_IN", 128, NULL, osPriorityLow, &controlInputHandle);
+	vTaskSuspend(controlInputHandle);
+
 	while(1) {
 		osDelay(1);
 		EventBits_t event = xEventGroupWaitBits(modeEventGroup, EVENT_BAKE | EVENT_REFLOW, pdFALSE, pdFALSE, portMAX_DELAY);
@@ -135,35 +141,34 @@ void controlTask(void const * argument) {
 
 void controlInputTask() {
 	const portTickType xDelay = 100 / portTICK_RATE_MS;
-	uint8_t done=0;
 
-	while(!done) {
+	while(1) {
 		vTaskDelay(xDelay);
 
 		uint8_t event = inputGetEvent();
 		switch (event) {
 			case PRESS_UP:
-				w+=10;
+				if(w<CONTROL_MAX_TEMP) w+=10;
 				setUpdate();
 				break;
 			case PRESS_DOWN:
-				w-=10;
+				if(w>0) w-=10;
 				setUpdate();
 				break;
 			case PRESS_SELECT:
-				done = 1;
+				setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
+				vTaskSuspend(controlInputHandle);
 				break;
 			default:
 				break;
 		}
 
 	}
-	setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
-	vTaskDelete(controlInputHandle); // Delete itself
+//	vTaskDelete(controlInputHandle); // Delete itself
 }
 
 void controlBake() {
-	xTaskCreate(controlInputTask, "CONTROL_IN", 128, NULL, osPriorityLow, &controlInputHandle);
+	vTaskResume(controlInputHandle);
 
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
 	while(1) {
@@ -183,15 +188,49 @@ void controlBake() {
 		HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
 
 		vTaskDelay(xDelay - xDelayOffset);
+
+		EventBits_t event = xEventGroupGetBits(modeEventGroup);
+		if(event & EVENT_BAKE) {
+			clearUpdate();
+			vTaskResume(controlInputHandle);
+		}
+		if(event & EVENT_REFLOW) {
+			break;
+		}
 	}
 }
 
 void controlReflow() {
-	xTaskCreate(controlInputTask, "CONTROL_IN", 128, NULL, osPriorityLow, &controlInputHandle);
+	vTaskResume(controlInputHandle);
+
+	xTaskCreate(profileControlTask, "CONTROL_REFLOW", 128, NULL, osPriorityLow, &controlReflowHandle);
 
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
 	while(1) {
+		if(pid.w != w) pid.w = w;
 
+		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
+		readTemperature();
+		uint8_t p = control(getTemperature2()/4);
+		setUpdate();
+
+		const TickType_t xDelayOffset = (xDelay * p)/100;
+
+		HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, !HEATER_POLARITY);
+
+		vTaskDelay(xDelayOffset);
+
+		HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
+
+		vTaskDelay(xDelay - xDelayOffset);
+
+		EventBits_t event = xEventGroupGetBits(modeEventGroup);
+		if(event & EVENT_REFLOW) {
+			clearUpdate();
+			vTaskResume(controlInputHandle);
+		}
+		if(event & EVENT_BAKE) {
+			break;
+		}
 	}
 }
-

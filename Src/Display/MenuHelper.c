@@ -33,7 +33,27 @@ extern osThreadId LCDHandle;
 void menuValChanger(uint32_t *ptr);
 
 static void Menu_RunBake();
-static void Menu_RunReflow();
+static void Menu_RunReflow(uint32_t curve, uint32_t length);
+
+static const struct OPTION_t reflowCurve = {
+		MENU_TYPE_OPTION,
+		"Reflow",
+		2,
+		{
+			{
+				.text = "Basic",
+				.length = 2,
+				.callback = Menu_RunReflow,
+				.points = basicPoints
+			},
+			{
+				.text = "Advanced",
+				.length = 3,
+				.callback = Menu_RunReflow,
+				.points = advancedPoints
+			}
+		}
+};
 
 static const struct MENU_t programmMenu = {
 		MENU_TYPE_MENU,
@@ -320,6 +340,7 @@ void Menu_RunBake() {
 	setMode(EVENT_BAKE | EVENT_UPADTE);
 }
 
-void Menu_RunReflow() {
+void Menu_RunReflow(uint32_t curve, uint32_t length) {
+	currentCurvePtr = (DATAPOINT_t*) curve;
 	setMode(EVENT_REFLOW | EVENT_UPADTE);
 }

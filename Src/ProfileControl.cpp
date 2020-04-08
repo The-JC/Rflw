@@ -18,31 +18,16 @@
 
 #include "ProfileControl.h"
 
-#include "control.h"
-
+#include "config.h"
 #include "cmsis_os.h"
 
 const DATAPOINT_t basicPoints[2] =  {{60, 80}, {30, 190}};
-CURVE_t basic = {
-		0,
-		"Basic",
-		2,
-		basicPoints
-};
-
 const DATAPOINT_t advancedPoints[3] =  {{210, 140},  {60, 160}, {90, 200}};
-CURVE_t advanced = {
-		1,
-		"Advanced",
-		3,
-		advancedPoints
-};
 
-CURVE_t curves[CURVESLEN] = {basic, advanced };
-
-uint8_t profileControl(CURVE_t curve) {
-	for(int i=0; i<curve.pointslen; i++) {
-		setTemperature(curve.points[i]->temprature);
+void profileControlTask(void const * argument) {
+	for(int i=0; i<REFLOW_MAX_POINTS; i++) {
+		if((currentCurvePtr+i)->temprature==0) break;
+		setTemperature((currentCurvePtr+i)->temprature);
 
 		// Wait till set temperature is reached then start timer
 		// *ToDo* thermal runaway protection
@@ -50,8 +35,6 @@ uint8_t profileControl(CURVE_t curve) {
 			osDelay(1);
 		}
 
-		osDelay(curve.points[i]->time*1000);
+		osDelay((currentCurvePtr+i)->time*1000);
 	}
-
-	return 1;
 }
