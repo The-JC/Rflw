@@ -20,6 +20,7 @@
 
 #include "cmsis_os.h"
 
+extern osThreadId controlHandle;
 extern osMutexId SPIMutexHandle;
 
 uint8_t currentSensor;
@@ -55,36 +56,45 @@ void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 		Error_Handler();
 		return;
 	}
-
-	if(currentSensor == 1) {
-		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
-
-		if(isDataInvalid(rxBuffer)) {
-			temperature1 = 0;
-			*rxBuffer = 0x0000;
-			return;
-		}
-
-		temperature1 = convertToTemprature(rxBuffer);
-		*rxBuffer = 0x0000;
-		return;
-	} else if(currentSensor == 2) {
-		HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_SET);
-		currentSensor = 0;
-
-		if(isDataInvalid(rxBuffer)) {
-			temperature2 = 0;
-			*rxBuffer = 0x0000;
-			return;
-		}
-
-		temperature2 = convertToTemprature(rxBuffer);
-		*rxBuffer = 0x0000;
-		return;
-	}
+//	xTaskNotifyFromISR(controlHandle, NULL, eNoAction, pdTRUE);
+	vTaskNotifyGiveFromISR(controlHandle, pdFALSE);
 }
 
 void readTemperature() {
+	// Check if data was received
+	if(ulTaskNotifyTake(pdTRUE, 1) > 0) {
+
+		// Give semaphore back for further readings
+		xSemaphoreGive(SPIMutexHandle);
+
+		// Process data
+		if(currentSensor == 1) {
+			HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
+			if(isDataInvalid(rxBuffer)) {
+				temperature1 = 0;
+				*rxBuffer = 0x0000;
+				return;
+			}
+
+			temperature1 = convertToTemprature(rxBuffer);
+			*rxBuffer = 0x0000;
+			return;
+		} else if(currentSensor == 2) {
+			HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_SET);
+			currentSensor = 0;
+
+			if(isDataInvalid(rxBuffer)) {
+				temperature2 = 0;
+				*rxBuffer = 0x0000;
+				return;
+			}
+
+			temperature2 = convertToTemprature(rxBuffer);
+			*rxBuffer = 0x0000;
+			return;
+		}
+	}
+
 	// Check if a sensor reading is in progress
 	if(currentSensor == 0) {
 		currentSensor = 1; // Set to read first sensor
@@ -100,10 +110,6 @@ void readTemperature() {
 			Error_Handler();
 		}
 
-		osDelay(1);
-		HAL_GPIO_WritePin(CS_GPIO_Port, CS_Pin, GPIO_PIN_SET);
-		xSemaphoreGive(SPIMutexHandle);
-
 		return;
 	} else if (currentSensor == 1) {
 		currentSensor = 2; // Set to read second sensor
@@ -118,11 +124,6 @@ void readTemperature() {
 		if(HAL_SPI_Receive_IT(&hspi2, (uint8_t*)rxBuffer, 2) != HAL_OK) {
 			Error_Handler();
 		}
-
-		osDelay(1);
-		HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_SET);
-
-		xSemaphoreGive(SPIMutexHandle);
 		return;
 	}
 }
