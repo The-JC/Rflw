@@ -36,6 +36,7 @@ static void Menu_RunBake();
 static void Menu_RunReflow();
 
 static const struct MENU_t programmMenu = {
+		MENU_TYPE_MENU,
 		"Programs",
 		2,
 		{
@@ -46,13 +47,17 @@ static const struct MENU_t programmMenu = {
 			},
 			{
 				.text = "Reflow",
-				.type = MENU_EXEC,
-				.callback = Menu_RunReflow,
+				.type = MENU_OPTION,
+				.callback = 0,
+				{
+					.option = &reflowCurve
+				}
 			}
 		}
 };
 
 static const struct MENU_t settingsMenu = {
+		MENU_TYPE_MENU,
 		"Settings",
 		3,
 		{
@@ -84,6 +89,7 @@ static const struct MENU_t settingsMenu = {
 };
 
 static const struct MENU_t mainMenu = {
+		MENU_TYPE_MENU,
 		"Main Menu",
 		2,
 		{
@@ -164,7 +170,14 @@ void menuAction() {
 		}
 	}
 
+	if(menu->type == MENU_TYPE_OPTION) {
+		const struct OPTION_t *option = (struct OPTION_t*) menu;
+		const struct OPTIONITEM_t *item = &option->options[pos];
+		item->callback((uint32_t) *item->points, (uint32_t) item->length);
+	}
+
 	switch(menu->contents[pos].type) {
+	case MENU_OPTION:
 	case MENU_SUB:
 		if(!(menuDepth + 1 < MENU_MAX_DEPTH)) {
 			//*ToDo* implement error
@@ -173,7 +186,10 @@ void menuAction() {
 
 		++menuDepth;
 		menuPosStack[menuDepth] = 0;
-		menuStack[menuDepth] = menu->contents[pos].subMenu;
+		if(menu->contents[pos].type == MENU_SUB)
+			menuStack[menuDepth] = menu->contents[pos].subMenu;
+		else
+			menuStack[menuDepth] = menu->contents[pos].option;
 		break;
 	case MENU_EXEC:
 		menu->contents[pos].callback(); // Execute callback function

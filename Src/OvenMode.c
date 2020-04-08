@@ -28,7 +28,7 @@ EventBits_t setMode(EventBits_t mode) {
 }
 
 EventBits_t setUpdate() {
-	setMode(getMode() | EVENT_UPADTE);
+	return setMode(getMode() | EVENT_UPADTE);
 }
 
 EventBits_t clearUpdate() {

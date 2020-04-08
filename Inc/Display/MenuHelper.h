@@ -21,12 +21,19 @@
 
 #include "Display/SSD1306.h"
 #include "config.h"
+#include "ProfileControl.h"
 
 enum {
 	MENU_LAST=0,
 	MENU_SUB,
 	MENU_EXEC,
+	MENU_OPTION,
 	MENU_VAL,
+};
+
+enum {
+	MENU_TYPE_MENU=0,
+	MENU_TYPE_OPTION
 };
 
 enum {
@@ -40,21 +47,39 @@ struct MENUITEM_t {
 	void (*callback)(void);
 	union {
 		const struct MENU_t *subMenu;
+		const struct OPTION_t *option;
 		uint32_t *val;
+		uint32_t padding[REFLOW_MAX_POINTS];
 	};
 };
 
 struct MENU_t {
+	uint8_t type;
 	char* name;
 	const uint32_t num;
 	const struct MENUITEM_t contents[MENU_MAX_CONTENTS];
+};
+
+struct OPTIONITEM_t {
+	char* text;
+	uint8_t length;
+	void (*callback)(uint32_t, uint32_t);
+	union {
+		const uint32_t id;
+		const DATAPOINT_t *points[REFLOW_MAX_POINTS];
+	};
+};
+
+struct OPTION_t {
+	uint8_t type;
+	char* name;
+	const uint32_t length;
+	const struct OPTIONITEM_t options[MENU_MAX_CONTENTS];
 };
 
 void menuTask(void const * argument);
 
 void menuDraw();
 void menuAction();
-
-
 
 #endif /* DISPLAY_MENUHELPER_H_ */
