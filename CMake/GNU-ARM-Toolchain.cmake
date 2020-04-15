@@ -1,12 +1,14 @@
+message("Using GNU ARM Toolchain")
+
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
 
 # which compilers to use for C and C++
-set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
-set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
+set(CMAKE_C_COMPILER arm-none-eabi-gcc CACHE FILEPATH "Compiler")
+set(CMAKE_CXX_COMPILER arm-none-eabi-g++ CACHE FILEPATH "Compiler")
+set(CMAKE_ASM_COMPILER arm-none-eabi-gcc CACHE FILEPATH "Compiler")
 set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
 set(CMAKE_OBJDUMP arm-none-eabi-objdump)
 
@@ -23,7 +25,7 @@ set(CMAKE_C_FLAGS "${CORE_FLAGS} ${COMPILER_OPTIMISATION} -std=gnu11 -ffunction-
 set(CMAKE_C_FLAGS_DEBUG "" CACHE INTERNAL "c compiler flags: Debug")
 set(CMAKE_C_FLAGS_RELEASE "" CACHE INTERNAL "c compiler flags: Release")
 
-set(CMAKE_CXX_FLAGS "${CORE_FLAGS} ${COMPILER_OPTIMISATION} -std=gnu++14 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage" CACHE INTERNAL "cxx compiler flags")
+set(CMAKE_CXX_FLAGS "${CORE_FLAGS} ${COMPILER_OPTIMISATION} -std=gnu++17 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage" CACHE INTERNAL "cxx compiler flags")
 set(CMAKE_CXX_FLAGS_DEBUG "" CACHE INTERNAL "cxx compiler flags: Debug")
 set(CMAKE_CXX_FLAGS_RELEASE "" CACHE INTERNAL "cxx compiler flags: Release")
 

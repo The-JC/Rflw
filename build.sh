@@ -1,6 +1,12 @@
 #!/bin/bash
 
-# rm -rf build
+# select to clean previous builds
+: ${CLEANBUILD:=false}
+
+if [ "${CLEANBUILD}" == "true" ]; then
+    echo "- removing build directory!"
+    rm -rf build
+fi
 mkdir build
 cd build
 

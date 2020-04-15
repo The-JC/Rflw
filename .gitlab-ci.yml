@@ -1,0 +1,23 @@
+image:
+    name: stm32
+
+stages:
+    - build
+    - test
+
+build:
+    stage: build
+    script: time CLEANBUILD=true ./build.sh
+    cache:
+        key: build-cache
+        paths:
+        - build/Drivers
+        - build/Middlewares
+    artifacts:
+        paths:
+            - build/Rflw.bin
+        expire_in: 1 week
+
+test:
+    stage: test
+    script: file build/Rflw.bin

@@ -1,20 +1,22 @@
 cmake_minimum_required(VERSION 3.13)
 
+set(application_name "Rflw")
+
 # set the build type
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-	message("Debug build.")
+	message("Building for Debug.")
 elseif(CMAKE_BUILD_TYPE MATCHES Release)
 	message("Building for Release.")
 endif()
 
 # Project specific settings
-set(application_name "Rflw")
-
 project(${application_name} C CXX ASM)
+
+message("Configuring ${application_name}")
 
 # STM32 specific settings
 set(DEVICE_FAMILY STM32F103xB)
