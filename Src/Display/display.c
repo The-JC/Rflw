@@ -111,7 +111,7 @@ void displayReflow() {
 		vTaskDelay(xDelay);
 		SSD1306_Fill(BLACK);
 
-		sprintf(buffer, );
+		//sprintf(buffer, );
 
 		toTempratureBuffer(buffer, 10, getTemperature1());
 		SSD1306_GotoY(43);
