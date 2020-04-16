@@ -54,8 +54,4 @@ dkms.conf
 .settings
 Debug/
 
-# Drivers
-Drivers/
-Middlewares/
-
 build/

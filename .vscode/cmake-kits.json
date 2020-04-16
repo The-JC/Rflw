@@ -1,0 +1,6 @@
+[
+	{
+		"name": "STM32F1",
+		"toolchainFile": "${workspaceFolder}/CMake/GNU-ARM-Toolchain.cmake"
+	}
+]
