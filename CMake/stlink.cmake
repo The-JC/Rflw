@@ -3,6 +3,7 @@
 
 # Configure flasher script for the project
 set(FLASH_START 0x08000000)
+set(OPENOCD_CONFIG ${PROJECT_SOURCE_DIR}/tools/stm32.cfg)
 
 #Add JLink commands
 add_custom_target(debug 
@@ -16,7 +17,8 @@ add_custom_target(debug-server
 )
 
 add_custom_target(flash 
-	COMMAND st-flash --reset write ${bin_file} ${FLASH_START}
+	COMMAND openocd -f ${OPENOCD_CONFIG} --command 
+		"program ${elf_file} reset exit"
 	DEPENDS ${elf_file}
 )
 
