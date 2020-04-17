@@ -5,6 +5,18 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"cwd": "${workspaceRoot}",
+			"executable": "./build/Rflw.elf",
+			"name": "Debug Microcontroller",
+			"request": "launch",
+			"type": "cortex-debug",
+			"servertype": "openocd",
+			"configFiles": [
+				"tools/stm32.cfg"
+			],
+			"gdbpath": "/usr/bin/gdb-multiarch"
+		},
+		{
 			"name": "GDB",
 			"type": "gdb",
 			"request": "launch",
@@ -15,6 +27,7 @@
 				"symbol-file ./build/Rflw.elf",
 				"monitor reset"
 			]
-		}
+		},
+		
 	]
 }

@@ -4,6 +4,10 @@
 		"cstdint": "c",
 		"random": "c",
 		"*.tcc": "c",
-		"input.h": "c"
-	}
+		"input.h": "c",
+		"profilecontrol.h": "c",
+		"config.h": "c",
+		"cmsis_os.h": "c"
+	},
+	"cortex-debug.armToolchainPath": "/bin/",
 }
