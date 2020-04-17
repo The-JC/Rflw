@@ -1,7 +1,10 @@
+# sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi gdb-arm-none-eabi openocd
+
 image:
     name: stm32
 
 stages:
+    - pages
     - build
     - test
 
@@ -21,3 +24,14 @@ build:
 test:
     stage: test
     script: file build/Rflw.bin
+
+pages:
+    stage: pages
+    script: 
+    - doxygen Rflw
+    - mv docs/html/ public/
+    artifacts:
+        paths:
+        - public
+    only:
+    - master
