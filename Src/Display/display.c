@@ -107,11 +107,35 @@ void displayReflow() {
 	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
 
 	const TickType_t xDelay = 100 / portTICK_PERIOD_MS; // 100ms
+	TickType_t startTick = xTaskGetTickCount();
 	while(1) {
 		vTaskDelay(xDelay);
 		SSD1306_Fill(BLACK);
 
-		//sprintf(buffer, );
+		if(currentPointPtr != NULL) {
+			if(profileState == 1) {
+				sprintf(buffer, "Heating");
+				SSD1306_GotoY(0);
+				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+				memset(buffer, 0, 10);
+
+				sprintf(buffer, "-> %u°C", currentPointPtr->temperature);
+				SSD1306_GotoY(33);
+				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+				memset(buffer, 0, 10);
+				startTick = xTaskGetTickCount();
+			} else if(profileState == 3) {
+				sprintf(buffer, "%us -> %us", (xTaskGetTickCount() - startTick)/1000, currentPointPtr->time);
+				SSD1306_GotoY(0);
+				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+				memset(buffer, 0, 10);
+
+				sprintf(buffer, "%u°C", currentPointPtr->temperature);
+				SSD1306_GotoY(33);
+				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+				memset(buffer, 0, 10);
+			}
+		}
 
 		toTempratureBuffer(buffer, 10, getTemperature1());
 		SSD1306_GotoY(43);
@@ -126,7 +150,17 @@ void displayReflow() {
 		memset(buffer, 0, 10);
 
 		SSD1306_UpdateScreen();
+
+		event = getMode();
+		if(event & ~(EVENT_REFLOW | EVENT_UPADTE)) {
+			break; // Cancel the while loop to check the display event for new instructions
+		} else if(!(event & EVENT_UPADTE)) {
+			// xEventGroupWaitBits(modeEventGroup, EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
+			clearUpdate();
+		}
 	}
+
+	xSemaphoreGive(xLCDMutexHandle);
 }
 
 void checkDisplayEvent(EventBits_t event) {
