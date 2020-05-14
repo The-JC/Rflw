@@ -75,6 +75,22 @@ void setTemperature(uint16_t w) {
 	pid.w = w;
 }
 
+volatile uint16_t getTemperature() {
+	if(getTemperature1() != 0 && getTemperature2() != 0) {
+		return (getTemperature1() + getTemperature2()) /2;
+	} else if(getTemperature1() != 0) {
+		return getTemperature1();
+	} else if(getTemperature2() != 0) {
+		return getTemperature2();
+	} else {
+		return -1;
+	}
+}
+
+uint8_t reachedTemperature() {
+	return getTemperature() < pid.w+CONTROL_TOLERANCE && getTemperature() > pid.w+CONTROL_TOLERANCE;
+}
+
 uint8_t control(uint16_t x) {
 	int output;
 	int e = pid.w-x;
@@ -182,7 +198,7 @@ void controlBake() {
 
 		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
 		readTemperature();
-		uint8_t p = control(getTemperature2()/4);
+		uint8_t p = control(getTemperature()/4);
 		setUpdate();
 
 		const TickType_t xDelayOffset = (xDelay * p)/100;
@@ -219,7 +235,7 @@ void controlReflow() {
 
 		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
 		readTemperature();
-		uint8_t p = control(getTemperature2()/4);
+		uint8_t p = control(getTemperature()/4);
 		setUpdate();
 
 		const TickType_t xDelayOffset = (xDelay * p)/100;
