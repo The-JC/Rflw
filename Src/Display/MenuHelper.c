@@ -194,6 +194,7 @@ void menuAction() {
 		const struct OPTION_t *option = (struct OPTION_t*) menu;
 		const struct OPTIONITEM_t *item = &option->options[pos];
 		item->callback((uint32_t) *item->points, (uint32_t) item->length);
+		return;
 	}
 
 	switch(menu->contents[pos].type) {
@@ -342,5 +343,6 @@ void Menu_RunBake() {
 
 void Menu_RunReflow(uint32_t curve, uint32_t length) {
 	currentCurvePtr = (DATAPOINT_t*) curve;
+	currentCurveLength = length;
 	setMode(EVENT_REFLOW | EVENT_UPADTE);
 }

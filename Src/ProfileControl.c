@@ -19,22 +19,46 @@
 #include "ProfileControl.h"
 
 #include "config.h"
+#include "OvenMode.h"
 #include "cmsis_os.h"
+
+extern osThreadId controlInputHandle;
+osThreadId controlReflowHandle;
+
+extern uint8_t reachedTemperature();
 
 const DATAPOINT_t basicPoints[2] =  {{60, 80}, {30, 190}};
 const DATAPOINT_t advancedPoints[3] =  {{210, 140},  {60, 160}, {90, 200}};
 
-void profileControlTask(void const * argument) {
-	for(int i=0; i<REFLOW_MAX_POINTS; i++) {
-		if((currentCurvePtr+i)->temprature==0) break;
-		setTemperature((currentCurvePtr+i)->temprature);
+void profileControlTask(void * argument) {
+	for(uint32_t i=0; i<REFLOW_MAX_POINTS; i++) {
+		currentPointPtr = currentCurvePtr + i;
 
+		if(currentPointPtr->temperature==0 || i >= currentCurveLength) {
+			currentPointPtr = NULL;
+			setTemperature(0);
+			setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
+			vTaskSuspend(controlInputHandle);	// Suspend Input Handle Task
+			vTaskDelete(&controlReflowHandle);
+			// *ToDo* Fix crashing at Task delete
+			break;
+		}
+		setTemperature(currentPointPtr->temperature);
+		setUpdate();
+
+		profileState = 1;
+
+		uint16_t tick = 0;
 		// Wait till set temperature is reached then start timer
 		// *ToDo* thermal runaway protection
 		while(!reachedTemperature()) {
 			osDelay(1);
+			if(++tick > 1000) {
+				break; // Implement thermal runaway protection here
+			}
 		}
+		profileState = 3;
 
-		osDelay((currentCurvePtr+i)->time*1000);
+		osDelay(currentPointPtr->time*1000);
 	}
 }

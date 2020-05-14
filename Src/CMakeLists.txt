@@ -4,7 +4,7 @@ target_sources(${elf_file}
 		input.c
 		OvenMode.c
 		sensor.c
-		ProfileControl.cpp
+		ProfileControl.c
 		Reflow.cpp
 )
 

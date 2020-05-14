@@ -42,7 +42,7 @@ void controlBake();
 void controlReflow();
 
 osThreadId controlInputHandle;
-osThreadId controlReflowHandle;
+extern osThreadId controlReflowHandle;
 
 typedef struct {
 

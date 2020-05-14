@@ -43,6 +43,16 @@ extern const DATAPOINT_t advancedPoints[3];
 
 /// Pointer to curve that is currently in use
 volatile DATAPOINT_t *currentCurvePtr;
+volatile uint32_t currentCurveLength;
+/// Pointer to the current point of the curve
+volatile DATAPOINT_t *currentPointPtr;
+
+/**
+ * @brief State of profile
+ * 1: heating up
+ * 3: running timer
+ */
+volatile uint8_t profileState;
 
 /**
  * This function sets w of @control at the time according to the Curve
