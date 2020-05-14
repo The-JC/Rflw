@@ -23,8 +23,8 @@
 #include "OvenMode.h"
 #include "input.h"
 #include "sensor.h"
+#include "ProfileControl.h"
 
-extern void profileControlTask();
 
 uint32_t Kp = CONTROL_Kd*100;
 uint32_t Ki = CONTROL_Ki*100;
@@ -35,7 +35,9 @@ volatile uint32_t w=0;
 uint8_t control(uint16_t x);
 uint32_t calculate_dt();
 
+extern void profileControlTask(void * argument);
 void controlInputTask();
+
 void controlBake();
 void controlReflow();
 
@@ -148,10 +150,14 @@ void controlInputTask() {
 		uint8_t event = inputGetEvent();
 		switch (event) {
 			case PRESS_UP:
+				if(getMode() & EVENT_REFLOW)
+					break;
 				if(w<CONTROL_MAX_TEMP) w+=10;
 				setUpdate();
 				break;
 			case PRESS_DOWN:
+				if(getMode() & EVENT_REFLOW)
+					break;
 				if(w>0) w-=10;
 				setUpdate();
 				break;
@@ -203,7 +209,9 @@ void controlBake() {
 void controlReflow() {
 	vTaskResume(controlInputHandle);
 
-	xTaskCreate(profileControlTask, "CONTROL_REFLOW", 128, NULL, osPriorityLow, &controlReflowHandle);
+	if(xTaskCreate(profileControlTask, "CONTROL_REFLOW", 128, NULL, osPriorityLow, &controlReflowHandle) != pdPASS) {
+		Error_Handler();
+	}
 
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
 	while(1) {
