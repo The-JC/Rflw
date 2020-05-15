@@ -120,12 +120,21 @@ uint8_t control(uint16_t x) {
 	return output;
 }
 
+/**
+ * @brief update internal PID values
+ * 
+ */
 void updatePIDValues() {
 	pid.Kp = ((float) Kp)/100;
 	pid.Ki = ((float) Ki)/100;
 	pid.Kd = ((float) Kd)/100;
 }
 
+/**
+ * @brief calculate time delta from last execution
+ * 
+ * @return uint32_t dt
+ */
 uint32_t calculate_dt() {
 	uint32_t dt = HAL_GetTick()-pid.lastControlTime;
 	pid.lastControlTime = HAL_GetTick();

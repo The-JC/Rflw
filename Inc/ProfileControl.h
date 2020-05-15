@@ -29,7 +29,7 @@
 #include "control.h"
 
 /**
- * Datapoint of a curve
+ * @brief Datapoint of a curve
  */
 typedef struct {
 	const uint32_t time; ///< duration to next point
@@ -43,6 +43,7 @@ extern const DATAPOINT_t advancedPoints[3];
 
 /// Pointer to curve that is currently in use
 volatile DATAPOINT_t *currentCurvePtr;
+/// Amount of points of the current curve
 volatile uint32_t currentCurveLength;
 /// Pointer to the current point of the curve
 volatile DATAPOINT_t *currentPointPtr;
@@ -53,6 +54,12 @@ volatile DATAPOINT_t *currentPointPtr;
  * 3: running timer
  */
 volatile uint8_t profileState;
+
+enum {
+	NON		= 0x0, /*!< Not running */
+	HEATING	= 0x1, /*!< Controller is trying to reach temperature */
+	RUNNING	= 0x3 /*!< Hold temperature, while timer is running */
+} PROFILE_STATE_t;
 
 /**
  * This function sets w of @control at the time according to the Curve

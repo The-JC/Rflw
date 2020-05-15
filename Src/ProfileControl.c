@@ -36,6 +36,7 @@ void profileControlTask(void * argument) {
 
 		if(currentPointPtr->temperature==0 || i >= currentCurveLength) {
 			currentPointPtr = NULL;
+			profileState = NON;
 			setTemperature(0);
 			setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
 			vTaskSuspend(controlInputHandle);	// Suspend Input Handle Task
@@ -46,7 +47,7 @@ void profileControlTask(void * argument) {
 		setTemperature(currentPointPtr->temperature);
 		setUpdate();
 
-		profileState = 1;
+		profileState = HEATING;
 
 		uint16_t tick = 0;
 		// Wait till set temperature is reached then start timer
@@ -57,7 +58,7 @@ void profileControlTask(void * argument) {
 				break; // Implement thermal runaway protection here
 			}
 		}
-		profileState = 3;
+		profileState = RUNNING;
 
 		osDelay(currentPointPtr->time*1000);
 	}
