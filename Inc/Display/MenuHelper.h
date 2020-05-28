@@ -1,10 +1,10 @@
 /**
- * @file ProfileControl.h
+ * @file MenuHelper.h
  * @author Julian Hellner <julian@hellner.cc>
- * @brief Controls the oven in Reflow mode
+ * @brief Menu implementation and special menu functions
  * 
  * @copyright
- * This file is part of Rflw (https://github.com/The-JC/Rflw).\n
+ * This file is part of Rflw (https://lab.katurisoft.com/Julian/Rflw).\n
  * Copyright (C) 2020 Julian Hellner <julian@hellner.cc>\n
  * \n
  * This program is free software: you can redistribute it and/or modify\n

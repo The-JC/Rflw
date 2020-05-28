@@ -1,5 +1,5 @@
 /**
- *  This file is part of Rflw (https://github.com/The-JC/Rflw).
+ *  This file is part of Rflw (https://lab.katurisoft.com/Julian/Rflw).
  *  Copyright (C) 2020  Julian Hellner <julian@hellner.cc>
  *
  *  This program is free software: you can redistribute it and/or modify
