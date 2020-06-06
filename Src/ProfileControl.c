@@ -53,8 +53,8 @@ void profileControlTask(void * argument) {
 		// Wait till set temperature is reached then start timer
 		// *ToDo* thermal runaway protection
 		while(!reachedTemperature()) {
-			osDelay(1);
-			if(++tick > 1000) {
+			osDelay(100);
+			if(++tick > 1000*60*3) {
 				break; // Implement thermal runaway protection here
 			}
 		}
