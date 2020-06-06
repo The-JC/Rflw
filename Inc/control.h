@@ -38,12 +38,12 @@ extern uint32_t Kp, Ki, Kd;
  */
 void updatePIDValues();
 /**
- * Set the set Temperature
+ * Set the targeted set Temperature
  * 
- * @param w
+ * @param set_w
  * @return void
  */
-void setTemperature(uint16_t w);
+void setTemperature(uint16_t set_w);
 /**
  * Get the Set Temperature
  * 

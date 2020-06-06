@@ -28,6 +28,9 @@ volatile uint32_t temperature1;
 volatile uint32_t temperature2;
 volatile uint16_t rxBuffer[1];
 
+/**
+ * @brief Check if data meets criteria of valid data
+ */
 uint8_t isDataInvalid(volatile uint16_t *buffer);
 uint16_t convertToTemprature(uint16_t *buffer);
 void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi);

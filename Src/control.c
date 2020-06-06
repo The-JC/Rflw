@@ -68,11 +68,11 @@ uint16_t getSetTemperature() {
 	return w;
 }
 
-void setTemperature(uint16_t w) {
-	if(w<0) w = 0;
-	if(w>CONTROL_MAX_TEMP) w = CONTROL_MAX_TEMP;
+void setTemperature(uint16_t set_w) {
+	if(set_w<0) set_w = 0;
+	if(set_w>CONTROL_MAX_TEMP) set_w = CONTROL_MAX_TEMP;
 
-	pid.w = w;
+	pid.w = set_w;
 }
 
 volatile uint16_t getTemperature() {
@@ -240,8 +240,6 @@ void controlReflow() {
 
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
 	while(1) {
-		if(pid.w != w) pid.w = w;
-
 		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
 		readTemperature();
 		uint8_t p = control(getTemperature()/4);
