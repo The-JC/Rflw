@@ -117,6 +117,20 @@ uint8_t control(uint16_t x) {
 	} else if(output<0) {
 		output=0;
 	}
+	char buf[20];
+
+	itoa(xTaskGetTickCount(), buf, 16);
+	ITM_SendString(buf);
+	ITM_SendChar(' ');
+
+	itoa(getTemperature(), buf, 16);
+	ITM_SendString(buf);
+	ITM_SendChar(' ');
+
+	itoa(pid.w, buf, 16);
+	ITM_SendString(buf);
+	ITM_SendString("\n");
+
 	return output;
 }
 
@@ -269,3 +283,11 @@ void controlReflow() {
 		}
 	}
 }
+
+void ITM_SendString(char *ptr) {
+	while(*ptr) {
+		ITM_SendChar(*ptr);
+		ptr++;
+	}
+}
+

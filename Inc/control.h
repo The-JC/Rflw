@@ -71,4 +71,6 @@ uint8_t reachedTemperature();
  */
 void controlTask(void const * argument);
 
+void ITM_SendString(char *ptr);
+
 #endif /* CONTROL_H_ */
