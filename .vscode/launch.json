@@ -5,6 +5,16 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "Python: Current File",
+			"type": "python",
+			"request": "launch",
+			"program": "tools/datlog.py",
+			"args": [
+				"swo.log"
+			],
+			"console": "integratedTerminal"
+		},
+		{
 			"cwd": "${workspaceRoot}",
 			"executable": "./build/Rflw.elf",
 			"name": "Debug Microcontroller",
@@ -28,6 +38,5 @@
 				"monitor reset"
 			]
 		},
-		
 	]
 }
