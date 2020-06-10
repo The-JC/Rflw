@@ -88,7 +88,7 @@ volatile uint16_t getTemperature() {
 }
 
 uint8_t reachedTemperature() {
-	return getTemperature() < pid.w+CONTROL_TOLERANCE && getTemperature() > pid.w+CONTROL_TOLERANCE;
+	return getTemperature()/4 > pid.w-CONTROL_TOLERANCE && getTemperature()/4 < pid.w+CONTROL_TOLERANCE;
 }
 
 uint8_t control(uint16_t x) {
@@ -97,7 +97,7 @@ uint8_t control(uint16_t x) {
 	pid.dt = calculate_dt();
 
 	// Calculate the integral part of the PID controller
-	pid.integral += e*pid.dt/1000;
+	pid.integral += e * (pid.dt/1000);
 
 	// Limit integral portion
 	if(pid.integral > CONTROL_MAX_INTEGRAL) pid.integral = CONTROL_MAX_INTEGRAL;
@@ -105,7 +105,7 @@ uint8_t control(uint16_t x) {
 
 
 	// Calculate the derivative part of the PID controller
-	pid.derivative = (e - pid.previousError)*1000 / pid.dt;
+	pid.derivative = (e - pid.previousError) * (1000 / pid.dt);
 
 	pid.previousError = e;
 
@@ -238,10 +238,14 @@ void controlReflow() {
 		Error_Handler();
 	}
 
-	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS; // 1000ms
+	const TickType_t xDelay = 500 / portTICK_PERIOD_MS; // 1000ms
 	while(1) {
 		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
+		HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
+
 		readTemperature();
+		waitForSensor();
+		
 		uint8_t p = control(getTemperature()/4);
 		setUpdate();
 
