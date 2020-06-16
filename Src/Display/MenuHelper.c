@@ -35,9 +35,9 @@ uint32_t *valChangerOld;
 uint32_t valChangerNew;
 
 static const struct OPTION_t reflowCurve = {
-		MENU_TYPE_OPTION,
-		"Reflow",
-		2,
+		.type = MENU_TYPE_OPTION,
+		.name = "Reflow",
+		.length = 2,
 		{
 			{
 				.text = "Basic",
@@ -55,9 +55,9 @@ static const struct OPTION_t reflowCurve = {
 };
 
 static const struct MENU_t programmMenu = {
-		MENU_TYPE_MENU,
-		"Programs",
-		2,
+		.type = MENU_TYPE_MENU,
+		.name = "Programs",
+		.num = 2,
 		{
 			{
 				.text = "Bake",
@@ -76,9 +76,9 @@ static const struct MENU_t programmMenu = {
 };
 
 static const struct MENU_t settingsMenu = {
-		MENU_TYPE_MENU,
-		"Settings",
-		3,
+		.type = MENU_TYPE_MENU,
+		.name = "Settings",
+		.num = 3,
 		{
 			{
 				.text = "P",
@@ -108,9 +108,9 @@ static const struct MENU_t settingsMenu = {
 };
 
 static const struct MENU_t mainMenu = {
-		MENU_TYPE_MENU,
-		"Main Menu",
-		2,
+		.type = MENU_TYPE_MENU,
+		.name = "Main Menu",
+		.num = 2,
 		{
 			{
 				.text = "Programs",
@@ -209,7 +209,7 @@ void menuAction() {
 		if(menu->contents[pos].type == MENU_SUB)
 			menuStack[menuDepth] = menu->contents[pos].subMenu;
 		else
-			menuStack[menuDepth] = menu->contents[pos].option;
+			menuStack[menuDepth] = (const struct MENU_t*) menu->contents[pos].option;
 		break;
 	case MENU_EXEC:
 		menu->contents[pos].callback(); // Execute callback function
