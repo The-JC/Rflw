@@ -28,9 +28,8 @@
 #include "sensor.h"
 #include "ProfileControl.h"
 
-
-uint32_t Kp = CONTROL_Kd*100;
-uint32_t Ki = CONTROL_Ki*100;
+uint32_t Kp = CONTROL_Kp*100;
+uint32_t Ki = CONTROL_Ki*10;
 uint32_t Kd = CONTROL_Kd*100;
 
 volatile uint32_t w=0;

@@ -38,9 +38,9 @@
 
 #define CONTROL_MAX_TEMP 220
 
-#define CONTROL_Kp 1.8
-#define CONTROL_Ki 0.25
-#define CONTROL_Kd 25
+#define CONTROL_Kp 1.4 	// *100
+#define CONTROL_Ki 5 	// *10 // 25
+#define CONTROL_Kd 75	// *100 // 25
 
 #define REFLOW_MAX_POINTS 10
 
