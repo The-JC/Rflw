@@ -2,6 +2,10 @@
 
 image:
     name: stm32
+    
+variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+
 
 stages:
     - pages
