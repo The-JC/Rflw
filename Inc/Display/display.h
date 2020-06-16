@@ -27,12 +27,6 @@
 #include "main.h"
 #include "stm32f1xx_hal.h"
 
-typedef struct {
-	uint8_t mode;
-} DISPLAY_t;
-
-static DISPLAY_t display;
-
-void LCDTask(void const * argument);
+void vLCDTask(void * argument);
 
 #endif /* DISPLAY_H_ */

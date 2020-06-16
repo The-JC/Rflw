@@ -37,7 +37,7 @@ enum PRESS_EVENT_t{
 	PRESS_SELECT
 };
 
-void inputTask(void const * argument);
+void vInputTask(void * argument);
 /**
  * @brief gets event from queue
  * 

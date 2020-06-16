@@ -24,7 +24,8 @@
 #ifndef OVENMODE_H_
 #define OVENMODE_H_
 
-#include "cmsis_os.h"
+#include "FreeRTOS.h"
+#include "event_groups.h"
 
 EventGroupHandle_t modeEventGroup;
 

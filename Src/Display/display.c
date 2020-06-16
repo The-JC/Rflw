@@ -19,16 +19,16 @@
 #include <OvenMode.h>
 #include "Display/display.h"
 
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "memory.h"
 #include "Display/SSD1306.h"
 #include "Display/fonts.h"
 #include "Display/MenuHelper.h"
 #include "stdio.h"
 #include "math.h"
-#include "cmsis_os.h"
 #include "sensor.h"
 #include "control.h"
-
-extern osMutexId xLCDMutexHandle;
 
 void displayBake();
 void displayReflow();
@@ -37,23 +37,26 @@ void checkDisplayEvent(uint32_t event);
 void toTempratureBuffer(char *buf, uint8_t len, uint16_t temp);
 
 void LCDInit() {
+	xSemaphoreTake(xLCDMutex, portMAX_DELAY);
 	SSD1306_Init();
 	SSD1306_Fill(WHITE);
 	SSD1306_UpdateScreen();
-	osDelay(1000);
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
 	SSD1306_Fill(BLACK);
 	SSD1306_UpdateScreen();
+	xSemaphoreGive(xLCDMutex);
 
 //	display.mode = DISPLAY_MENU;
 }
 
-void LCDTask(void const * argument) {
+void vLCDTask(void * argument) {
 	EventBits_t event;
 
 	LCDInit();
 
+	const portTickType xDelay = 1 / portTICK_RATE_MS;
 	while(1) {
-		osDelay(1);
+		vTaskDelay(xDelay);
 
 		event = xEventGroupWaitBits(modeEventGroup, EVENT_MENU | EVENT_BAKE | EVENT_REFLOW | EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
 		checkDisplayEvent(event);
@@ -64,10 +67,11 @@ void displayBake() {
 	uint32_t event;
 	char buffer[10];
 
-	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
+	xSemaphoreTake(xLCDMutex, portMAX_DELAY);
 
+	const portTickType xDelay = 100 / portTICK_RATE_MS;
 	while(1) {
-		osDelay(100);
+		vTaskDelay(xDelay);
 		SSD1306_Fill(BLACK);
 
 		sprintf(buffer, "%d°C", getSetTemperature());
@@ -97,14 +101,14 @@ void displayBake() {
 		}
 	}
 
-	xSemaphoreGive(xLCDMutexHandle);
+	xSemaphoreGive(xLCDMutex);
 }
 
 void displayReflow() {
 	uint32_t event;
 	char buffer[10];
 
-	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
+	xSemaphoreTake(xLCDMutex, portMAX_DELAY);
 
 	const TickType_t xDelay = 100 / portTICK_PERIOD_MS; // 100ms
 	TickType_t startTick = xTaskGetTickCount();
@@ -160,7 +164,7 @@ void displayReflow() {
 		}
 	}
 
-	xSemaphoreGive(xLCDMutexHandle);
+	xSemaphoreGive(xLCDMutex);
 }
 
 void checkDisplayEvent(EventBits_t event) {

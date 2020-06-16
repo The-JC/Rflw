@@ -1,8 +1,10 @@
-#include <math.h>
 #include <Display/SSD1306.h>
-#include <cmsis_os.h>
+#include <math.h>
 
-extern osMutexId I2CMutexHandle;
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "memory.h"
+#include "main.h"
 
 extern I2C_HandleTypeDef hi2c1;
 /* Write command */
@@ -31,13 +33,13 @@ uint8_t SSD1306_Init(void) {
 	/* Init I2C */
 	ssd1306_I2C_Init();
 	
-	xSemaphoreTake(I2CMutexHandle, portMAX_DELAY);
+	xSemaphoreTake(xI2CMutex, portMAX_DELAY);
 	/* Check if LCD connected to I2C */
 	if (HAL_I2C_IsDeviceReady(&hi2c1, SSD1306_I2C_ADDR, 1, 20000) != HAL_OK) {
 		/* Return false */
 		return 0;
 	}
-	xSemaphoreGive(I2CMutexHandle);
+	xSemaphoreGive(xI2CMutex);
 	
 	/* A little delay */
 	uint32_t p = 2500;
@@ -586,22 +588,22 @@ void ssd1306_I2C_Init() {
 }
 
 void ssd1306_I2C_WriteMulti(uint8_t address, uint8_t reg, uint8_t* data, uint16_t count) {
-	xSemaphoreTake(I2CMutexHandle, portMAX_DELAY);
+	xSemaphoreTake(xI2CMutex, portMAX_DELAY);
 	uint8_t dt[count + 1];
 	dt[0] = reg;
 	uint8_t i;
 	for(i = 1; i <= count; i++)
 		dt[i] = data[i-1];
 	HAL_I2C_Master_Transmit(&hi2c1, address, dt, count, 10);
-	xSemaphoreGive(I2CMutexHandle);
+	xSemaphoreGive(xI2CMutex);
 }
 
 
 void ssd1306_I2C_Write(uint8_t address, uint8_t reg, uint8_t data) {
-	xSemaphoreTake(I2CMutexHandle, portMAX_DELAY);
+	xSemaphoreTake(xI2CMutex, portMAX_DELAY);
 	uint8_t dt[2];
 	dt[0] = reg;
 	dt[1] = data;
 	HAL_I2C_Master_Transmit(&hi2c1, address, dt, 2, 10);
-	xSemaphoreGive(I2CMutexHandle);
+	xSemaphoreGive(xI2CMutex);
 }

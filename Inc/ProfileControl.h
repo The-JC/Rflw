@@ -67,6 +67,6 @@ enum {
  * @param curve: curve to follow
  * @returns 0 or 1 -> 1 finished; 0 failed
  */
-void profileControlTask(void * argument);
+void vReflowControlTask(void * argument);
 
 #endif /* PROFILECONTROL_H_ */

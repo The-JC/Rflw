@@ -18,7 +18,6 @@
 
 #include "Reflow.h"
 
-#include "cmsis_os.h"
 #include "OvenMode.h"
 #include "control.h"
 

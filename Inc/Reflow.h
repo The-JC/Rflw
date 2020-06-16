@@ -27,7 +27,4 @@
 #include "main.h"
 #include "stm32f1xx_hal.h"
 
-//void inputTask(void const * argument);
-//void menuTask(void const * argument);
-
 #endif /* REFLOW_H_ */

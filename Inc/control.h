@@ -69,7 +69,7 @@ uint8_t reachedTemperature();
  * @param argument none
  * @return void
  */
-void controlTask(void const * argument);
+void vControlTask(void * argument);
 
 void ITM_SendString(char *ptr);
 

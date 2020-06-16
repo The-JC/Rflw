@@ -20,10 +20,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "task.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,14 +50,11 @@ SPI_HandleTypeDef hspi2;
 
 WWDG_HandleTypeDef hwwdg;
 
-osThreadId systemMonitorHandle;
-osThreadId inputHandle;
-osThreadId menuHandle;
-osThreadId controlHandle;
-osThreadId LCDHandle;
-osMutexId I2CMutexHandle;
-osMutexId xLCDMutexHandle;
-osMutexId SPIMutexHandle;
+TaskHandle_t systemMonitorHandle;
+TaskHandle_t inputHandle;
+TaskHandle_t menuHandle;
+TaskHandle_t controlHandle;
+TaskHandle_t LCDHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -65,11 +65,11 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_WWDG_Init(void);
-void systemMonitorTask(void const * argument);
-extern void inputTask(void const * argument);
-extern void menuTask(void const * argument);
-extern void controlTask(void const * argument);
-extern void LCDTask(void const * argument);
+void systemMonitorTask(void * argument);
+extern void vInputTask(void * argument);
+extern void vMenuTask(void * argument);
+extern void vControlTask(void * argument);
+extern void vLCDTask(void * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -90,36 +90,24 @@ void InitSystem(void) {
 }
 
 void InitOS(void) {
-	osMutexDef(I2CMutex);
-	I2CMutexHandle = osMutexCreate(osMutex(I2CMutex));
+	xSystemMonitorTask =  xTaskCreateStatic(systemMonitorTask, SYSTEM_MONITOR_NAME, SYSTEM_MONITOR_STACK_SIZE, NULL, SYSTEM_MONITOR_PRIORITY, xSystemMonitorStack, &xSystemMonitorBuffer);
+	
+	xInputHandlerTask =  xTaskCreateStatic(vInputTask, INPUT_HANDLER_NAME, INPUT_HANDLER_STACK_SIZE, NULL, INPUT_HANDLER_PRIORITY, xInputHandlerStack, &xInputHandlerBuffer);
 
-	osMutexDef(SPIMutex);
-	SPIMutexHandle = osMutexCreate(osMutex(SPIMutex));
+	xLCDTask =  xTaskCreateStatic(vLCDTask, LCD_NAME, LCD_STACK_SIZE, NULL, LCD_PRIORITY, xLCDStack, &xLCDBuffer);
 
-	osMutexDef(xLCDMutex);
-	xLCDMutexHandle = osMutexCreate(osMutex(xLCDMutex));
+	xMenuTask =  xTaskCreateStatic(vMenuTask, MENU_NAME, MENU_STACK_SIZE, NULL, MENU_PRIORITY, xMenuStack, &xMenuBuffer);
 
-	osThreadDef(systemMonitorTask, systemMonitorTask, osPriorityHigh, 0, 128);
-	systemMonitorHandle = osThreadCreate(osThread(systemMonitorTask), NULL);
+	xControlTask =  xTaskCreateStatic(vControlTask, CONTROL_NAME, CONTROL_STACK_SIZE, NULL, CONTROL_PRIORITY, xControlStack, &xControlBuffer);
 
-	/* definition and creation of input */
-	osThreadDef(input, inputTask, osPriorityLow, 0, 128);
-	inputHandle = osThreadCreate(osThread(input), NULL);
+	xI2CMutex = xSemaphoreCreateMutexStatic(&xI2CMutexBuffer);
 
-	/* definition and creation of LCD */
-	osThreadDef(LCD, LCDTask, osPriorityIdle, 0, 128);
-	LCDHandle = osThreadCreate(osThread(LCD), NULL);
+	xSPIMutex = xSemaphoreCreateMutexStatic(&xSPIMutexBuffer);
 
-	/* definition and creation of menu */
-	osThreadDef(menu, menuTask, osPriorityIdle, 0, 128);
-	menuHandle = osThreadCreate(osThread(menu), NULL);
-
-	/* definition and creation of control */
-	osThreadDef(control, controlTask, osPriorityAboveNormal, 0, 128);
-	controlHandle = osThreadCreate(osThread(control), NULL);
+	xLCDMutex = xSemaphoreCreateMutexStatic(&xLCDMutexBuffer);
 
 	/* Start scheduler */
-	osKernelStart();
+	vTaskStartScheduler();
 }
 
 /* USER CODE END 0 */
@@ -287,7 +275,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD_Power_GPIO_Port, LD_Power_Pin, GPIO_PIN_SET);
@@ -341,7 +329,7 @@ static void MX_GPIO_Init(void)
   * @retval None
   */
 /* USER CODE END Header_systemMonitorTask */
-void systemMonitorTask(void const * argument)
+void systemMonitorTask(void * argument)
 {
   /* USER CODE BEGIN 5 */
 	const TickType_t xDelay = 48 / portTICK_PERIOD_MS; // 48ms
@@ -384,7 +372,7 @@ void Error_Handler(void)
   /* User can add his own implementation to report the HAL error return state */
 	while(1) {
 		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
-		osDelay(100);
+		HAL_Delay(100);
 	}
   /* USER CODE END Error_Handler_Debug */
 }

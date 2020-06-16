@@ -19,16 +19,12 @@
 
 #include "Display/MenuHelper.h"
 
-#include "cmsis_os.h"
 #include "stdio.h"
 #include "input.h"
 #include "control.h"
 #include "Display/display.h"
 #include "config.h"
 #include "OvenMode.h"
-
-extern osMutexId xLCDMutexHandle;
-extern osThreadId LCDHandle;
 
 void menuValChanger(uint32_t *ptr);
 
@@ -136,7 +132,7 @@ const struct MENU_t *menuStack[MENU_MAX_DEPTH];
 uint8_t menuPosStack[MENU_MAX_DEPTH];
 uint8_t menuDepth;
 
-void menuTask(void const * argument) {
+void vMenuTask(void * argument) {
 	uint16_t newPos;
 	const portTickType xDelay = 100 / portTICK_RATE_MS;
 //	const struct MENU_t *menu;
@@ -274,11 +270,11 @@ void menuValChanger(uint32_t *ptr) {
 		}
 	}
 
-	xSemaphoreGive(xLCDMutexHandle);
+	xSemaphoreGive(xLCDMutex);
 }
 
 void menuDraw() {
-	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
+	xSemaphoreTake(xLCDMutex, portMAX_DELAY);
 	uint8_t menuPos;
 	uint8_t drawPos;
 	const struct MENU_t *menu;
@@ -334,7 +330,7 @@ void menuDraw() {
 //	}
 	SSD1306_UpdateScreen();
 
-	xSemaphoreGive(xLCDMutexHandle);
+	xSemaphoreGive(xLCDMutex);
 }
 
 void Menu_RunBake() {

@@ -19,7 +19,6 @@
 #include "input.h"
 
 #include "main.h"
-#include "cmsis_os.h"
 #include "config.h"
 
 xQueueHandle xInputQueue;
@@ -34,7 +33,7 @@ uint8_t inputGetEvent() {
 	return ret;
 }
 
-void inputTask(void const *argument) {
+void vInputTask(void *argument) {
 	xInputQueue = xQueueCreate(INPUT_QUEUE_SIZE, sizeof(uint8_t));
 
 	const TickType_t xDelay = 100 / portTICK_PERIOD_MS; // 100ms

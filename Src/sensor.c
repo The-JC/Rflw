@@ -18,11 +18,6 @@
 
 #include "sensor.h"
 
-#include "cmsis_os.h"
-
-extern osThreadId controlHandle;
-extern osMutexId SPIMutexHandle;
-
 uint8_t currentSensor;
 volatile uint32_t temperature1;
 volatile uint32_t temperature2;
@@ -60,7 +55,7 @@ void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi) {
 		return;
 	}
 //	xTaskNotifyFromISR(controlHandle, NULL, eNoAction, pdTRUE);
-	vTaskNotifyGiveFromISR(controlHandle, pdFALSE);
+	vTaskNotifyGiveFromISR(xControlTask, pdFALSE);
 }
 
 void readTemperature() {
@@ -68,7 +63,7 @@ void readTemperature() {
 	if(ulTaskNotifyTake(pdTRUE, 1) > 0) {
 
 		// Give semaphore back for further readings
-		xSemaphoreGive(SPIMutexHandle);
+		xSemaphoreGive(xSPIMutex);
 
 		// Process data
 		if(currentSensor == 1) {
@@ -102,7 +97,7 @@ void readTemperature() {
 	if(currentSensor == 0) {
 		currentSensor = 1; // Set to read first sensor
 
-		if(xSemaphoreTake(SPIMutexHandle, portMAX_DELAY) != pdPASS) {
+		if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdPASS) {
 			return;
 		}
 
@@ -117,7 +112,7 @@ void readTemperature() {
 	} else if (currentSensor == 1) {
 		currentSensor = 2; // Set to read second sensor
 
-		if(xSemaphoreTake(SPIMutexHandle, portMAX_DELAY) != pdPASS) {
+		if(xSemaphoreTake(xSPIMutex, portMAX_DELAY) != pdPASS) {
 			return;
 		}
 

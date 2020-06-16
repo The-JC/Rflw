@@ -29,6 +29,8 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#include "FreeRTOS.h"
+#include "memory.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -79,10 +81,6 @@ void InitOS(void);
 #define CS_Pin GPIO_PIN_15
 #define CS_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-extern void inputTask(void const * argument);
-extern void LCDTask(void const * argument);
-extern void menuTask(void const * argument);
-extern void controlTask(void const * argument);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

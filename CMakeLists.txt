@@ -46,7 +46,7 @@ add_subdirectory(Drivers)
 target_link_libraries(${elf_file} PUBLIC stm32f1xx)
 
 # link FreeRTOS to project
-add_subdirectory(Middlewares/Third_Party/FreeRTOS/Source)
+add_subdirectory(Middlewares/Third_Party)
 target_link_libraries(${elf_file} PUBLIC freertos)
 
 # link source files to project
