@@ -4,6 +4,7 @@
 # Configure flasher script for the project
 set(FLASH_START 0x08000000)
 set(OPENOCD_CONFIG ${PROJECT_SOURCE_DIR}/tools/stm32.cfg)
+set(OPENOCD_SCRIPTS /usr/share/openocd/scripts)
 
 #Add JLink commands
 add_custom_target(debug 
@@ -12,7 +13,7 @@ add_custom_target(debug
 )
 
 add_custom_target(debug-server 
-	COMMAND st-util --listen_port 2331
+	COMMAND openocd -f ${OPENOCD_CONFIG} -s ${OPENOCD_SCRIPTS}
 	DEPENDS ${elf_file}
 )
 

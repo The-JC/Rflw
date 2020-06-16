@@ -18,6 +18,9 @@ if [ "$1" == "flash" ]; then
 elif [ "$1" == "erase" ]; then
 	echo "Building project and flashing to ST-Link"
 	make erase
+elif [ "$1" == "debug" ]; then
+	echo "Debug project and flashing to ST-Link"
+	make debug-server
 elif [ "$1" == "" ]; then
 	echo "Building project"
 	make
