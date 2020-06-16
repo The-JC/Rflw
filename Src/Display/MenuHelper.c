@@ -31,6 +31,9 @@ void menuValChanger(uint32_t *ptr);
 static void Menu_RunBake();
 static void Menu_RunReflow(uint32_t curve, uint32_t length);
 
+uint32_t *valChangerOld;
+uint32_t valChangerNew;
+
 static const struct OPTION_t reflowCurve = {
 		MENU_TYPE_OPTION,
 		"Reflow",
@@ -220,48 +223,28 @@ void menuAction() {
 }
 
 void menuValChanger(uint32_t *ptr) {
-	const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
-	uint32_t old = *ptr;
-	uint32_t new = old;
-	char oldbuf[14];
-	char newbuf[14];
 	uint8_t done = 0;
-	uint8_t update = 1;
 
-	setMode(EVENT_NONE);
+	valChangerOld = ptr;
+	valChangerNew = *ptr;
 
-	siprintf(oldbuf, "%u",(int) old);
+	setMode(EVENT_VALCHANGE | EVENT_UPADTE);
 
-	xSemaphoreTake(xLCDMutexHandle, portMAX_DELAY);
-
+	const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
 	while(!done) {
-		if(update) {
-			update = 0;
-			siprintf(newbuf, "%u", (int) new);
-
-			SSD1306_Fill(BLACK);
-			SSD1306_GotoY(16);
-			SSD1306_PutSAlign(oldbuf, &Font_7x10, WHITE, HORIZONTAL_CENTER);
-			SSD1306_GotoY(29);
-			SSD1306_PutSAlign(newbuf, &Font_11x18, WHITE, HORIZONTAL_CENTER);
-			SSD1306_DrawTriangle(96, 22, 110, 22, 103, 15, WHITE);
-			SSD1306_DrawTriangle(96, 49, 110, 49, 103, 56, WHITE);
-			SSD1306_UpdateScreen();
-		}
-
 		vTaskDelay(xDelay);
 		uint8_t event = inputGetEvent();
 		switch(event) {
 			case PRESS_UP:
-				++new;
-				update=1;
+				++valChangerNew;
+				setUpdate();
 				break;
 			case PRESS_DOWN:
-				--new;
-				update=1;
+				--valChangerNew;
+				setUpdate();
 				break;
 			case PRESS_SELECT:
-				*ptr = new;
+				*ptr = valChangerNew;
 				setMode(EVENT_MENU | EVENT_UPADTE);
 				done = 1;
 				break;
@@ -269,6 +252,27 @@ void menuValChanger(uint32_t *ptr) {
 				break;
 		}
 	}
+}
+
+void valChangerDraw() {
+	xSemaphoreTake(xLCDMutex, portMAX_DELAY);
+
+	char oldbuf[14];
+	char newbuf[14];
+
+	memset(oldbuf, 0, 14);
+	siprintf(oldbuf, "%u",(int) *valChangerOld);
+
+	siprintf(newbuf, "%u", (int) valChangerNew);
+
+	SSD1306_Fill(BLACK);
+	SSD1306_GotoY(16);
+	SSD1306_PutSAlign(oldbuf, &Font_7x10, WHITE, HORIZONTAL_CENTER);
+	SSD1306_GotoY(29);
+	SSD1306_PutSAlign(newbuf, &Font_11x18, WHITE, HORIZONTAL_CENTER);
+	SSD1306_DrawTriangle(96, 22, 110, 22, 103, 15, WHITE);
+	SSD1306_DrawTriangle(96, 49, 110, 49, 103, 56, WHITE);
+	SSD1306_UpdateScreen();
 
 	xSemaphoreGive(xLCDMutex);
 }

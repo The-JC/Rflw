@@ -33,12 +33,13 @@ EventGroupHandle_t modeEventGroup;
  * Modus of display
  */
 enum DisplayMode {
-	EVENT_NONE	=0,			///< Nothing is displayed
-	EVENT_MENU	=1 << 0,	///< The menu is displayed
-	EVENT_BAKE	=1 << 1,	///< The Bake overlay is shown
-	EVENT_REFLOW=1 << 2,	///< The Reflow overlay is shown
-	EVENT_UPADTE=1 << 3,	///< Signalise the mode was updated
-	EVENT_ALL	=0xF		///< all events
+	EVENT_NONE		=0,			///< Nothing is displayed
+	EVENT_MENU		=1 << 0,	///< The menu is displayed
+	EVENT_BAKE		=1 << 1,	///< The Bake overlay is shown
+	EVENT_REFLOW	=1 << 2,	///< The Reflow overlay is shown
+	EVENT_VALCHANGE	=1 << 3,	///< Value change overlay
+	EVENT_UPADTE	=1 << 4,	///< Signalise the mode was updated
+	EVENT_ALL		=0xF		///< all events
 };
 
 /**

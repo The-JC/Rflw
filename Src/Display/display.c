@@ -58,7 +58,7 @@ void vLCDTask(void * argument) {
 	while(1) {
 		vTaskDelay(xDelay);
 
-		event = xEventGroupWaitBits(modeEventGroup, EVENT_MENU | EVENT_BAKE | EVENT_REFLOW | EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
+		event = xEventGroupWaitBits(modeEventGroup, EVENT_MENU | EVENT_BAKE | EVENT_REFLOW | EVENT_VALCHANGE | EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
 		checkDisplayEvent(event);
 	}
 }
@@ -176,6 +176,10 @@ void checkDisplayEvent(EventBits_t event) {
 		case EVENT_REFLOW | EVENT_UPADTE:
 			clearUpdate();
 			displayReflow();
+			break;
+		case EVENT_VALCHANGE | EVENT_UPADTE:
+			clearUpdate();
+			valChangerDraw();
 			break;
 		case EVENT_MENU | EVENT_UPADTE:
 		default:

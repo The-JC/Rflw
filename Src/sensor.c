@@ -19,8 +19,8 @@
 #include "sensor.h"
 
 uint8_t currentSensor;
-volatile uint32_t temperature1;
-volatile uint32_t temperature2;
+volatile static uint32_t temperature1;
+volatile static uint32_t temperature2;
 volatile uint16_t rxBuffer[1];
 
 /**

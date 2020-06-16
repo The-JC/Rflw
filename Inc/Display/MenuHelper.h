@@ -95,6 +95,7 @@ struct OPTION_t {
 
 void menuTask(void const * argument);
 
+void valChangerDraw();
 void menuDraw();
 void menuAction();
 
