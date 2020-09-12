@@ -141,7 +141,7 @@ void vMenuTask(void * argument) {
 //	const struct MENU_t *menu;
 
 	menuDepth = 0;
-	menuPosStack[menuDepth] = 1;
+	menuPosStack[menuDepth] = 0;
 	menuStack[menuDepth] = &mainMenu;
 
 //	menuDraw();
