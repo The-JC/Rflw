@@ -24,6 +24,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#define ENABLE_WWDG
+
 #define LCD_ADDRESS 0x78
 #define LCD_WIDTH 128
 #define LCD_HEIGHT 64

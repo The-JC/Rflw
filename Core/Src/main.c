@@ -48,7 +48,9 @@ I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi2;
 
+#ifdef ENABLE_WWDG
 WWDG_HandleTypeDef hwwdg;
+#endif /* ENABLE_WWDG */
 
 TaskHandle_t systemMonitorHandle;
 TaskHandle_t inputHandle;
@@ -64,7 +66,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
+#ifdef ENABLE_WWDG
 static void MX_WWDG_Init(void);
+#endif /* ENABLE_WWDG */
 void systemMonitorTask(void * argument);
 extern void vInputTask(void * argument);
 extern void vMenuTask(void * argument);
@@ -84,7 +88,9 @@ void InitSystem(void) {
 	MX_GPIO_Init();
 	MX_I2C1_Init();
 	MX_SPI2_Init();
+	#ifdef ENABLE_WWDG
 	MX_WWDG_Init();
+	#endif /* ENABLE_WWDG */
 
 //	HAL_SPI_RegisterCallback();
 }
@@ -229,35 +235,23 @@ static void MX_SPI2_Init(void)
 
 }
 
+#ifdef ENABLE_WWDG
 /**
   * @brief WWDG Initialization Function
   * @param None
   * @retval None
   */
-static void MX_WWDG_Init(void)
-{
-
-  /* USER CODE BEGIN WWDG_Init 0 */
-
-  /* USER CODE END WWDG_Init 0 */
-
-  /* USER CODE BEGIN WWDG_Init 1 */
-
-  /* USER CODE END WWDG_Init 1 */
-  hwwdg.Instance = WWDG;
-  hwwdg.Init.Prescaler = WWDG_PRESCALER_8;
-  hwwdg.Init.Window = 96;
-  hwwdg.Init.Counter = 127;
-  hwwdg.Init.EWIMode = WWDG_EWI_DISABLE;
-  if (HAL_WWDG_Init(&hwwdg) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN WWDG_Init 2 */
-
-  /* USER CODE END WWDG_Init 2 */
-
+static void MX_WWDG_Init(void) {
+	hwwdg.Instance = WWDG;
+	hwwdg.Init.Prescaler = WWDG_PRESCALER_8;
+	hwwdg.Init.Window = 96;
+	hwwdg.Init.Counter = 127;
+	hwwdg.Init.EWIMode = WWDG_EWI_DISABLE;
+	if (HAL_WWDG_Init(&hwwdg) != HAL_OK) {
+		Error_Handler();
+	}
 }
+#endif /* ENABLE_WWDG */
 
 /**
   * @brief GPIO Initialization Function
@@ -336,7 +330,9 @@ void systemMonitorTask(void * argument)
   /* Infinite loop */
 	while(1) {
 		vTaskDelay(xDelay);
+	#ifdef ENABLE_WWDG
 		HAL_WWDG_Refresh(&hwwdg);
+	#endif /* ENABLE_WWDG */
 	}
   /* USER CODE END 5 */ 
 }
