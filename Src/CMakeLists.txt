@@ -5,7 +5,7 @@ target_sources(${elf_file}
 		OvenMode.c
 		sensor.c
 		ProfileControl.c
-		Reflow.cpp
+		Reflow.c
 )
 
 add_subdirectory(Display)
