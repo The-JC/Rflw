@@ -74,7 +74,7 @@ void displayBake() {
 		vTaskDelay(xDelay);
 		SSD1306_Fill(BLACK);
 
-		sprintf(buffer, "%d°C", getSetTemperature());
+		sprintf(buffer, "%lu°C", getSetTemperature());
 		SSD1306_GotoY(33);
 		SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 
@@ -123,18 +123,18 @@ void displayReflow() {
 				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 				memset(buffer, 0, 10);
 
-				sprintf(buffer, "-> %u°C", currentPointPtr->temperature);
+				sprintf(buffer, "-> %lu°C", currentPointPtr->temperature);
 				SSD1306_GotoY(33);
 				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 				memset(buffer, 0, 10);
 				startTick = xTaskGetTickCount();
 			} else if(profileState == 3) {
-				sprintf(buffer, "%us -> %us", (xTaskGetTickCount() - startTick)/1000, currentPointPtr->time);
+				sprintf(buffer, "%lus -> %lus", (xTaskGetTickCount() - startTick)/1000, currentPointPtr->time);
 				SSD1306_GotoY(0);
 				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 				memset(buffer, 0, 10);
 
-				sprintf(buffer, "%u°C", currentPointPtr->temperature);
+				sprintf(buffer, "%lu°C", currentPointPtr->temperature);
 				SSD1306_GotoY(33);
 				SSD1306_PutSAlign(buffer, &Font_7x10, WHITE, HORIZONTAL_CENTER);
 				memset(buffer, 0, 10);
