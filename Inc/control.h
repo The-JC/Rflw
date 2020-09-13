@@ -43,13 +43,13 @@ void updatePIDValues();
  * @param set_w
  * @return void
  */
-void setTemperature(uint16_t set_w);
+void setTemperature(uint32_t set_w);
 /**
  * Get the Set Temperature
  * 
  * @return uint16_t set temperature
  */
-uint16_t getSetTemperature();
+uint32_t getSetTemperature();
 /**
  * Average temprature of both sensors in °C
  * @note return value is times 4

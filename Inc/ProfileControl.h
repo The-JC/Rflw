@@ -33,7 +33,7 @@
  */
 typedef struct {
 	const uint32_t time; ///< duration to next point
-	const uint16_t temperature; ///< temperature to be set to
+	const uint32_t temperature; ///< temperature to be set to
 } DATAPOINT_t;
 
 /// The most basic test curve

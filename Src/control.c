@@ -64,15 +64,16 @@ typedef struct {
 
 static PID_t pid;
 
-uint16_t getSetTemperature() {
+uint32_t getSetTemperature() {
 	return w;
 }
 
-void setTemperature(uint16_t set_w) {
+void setTemperature(uint32_t set_w) {
 	if(set_w<0) set_w = 0;
 	if(set_w>CONTROL_MAX_TEMP) set_w = CONTROL_MAX_TEMP;
 
 	pid.w = set_w;
+
 }
 
 volatile uint16_t getTemperature() {

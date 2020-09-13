@@ -27,7 +27,7 @@ volatile uint16_t rxBuffer[1];
  * @brief Check if data meets criteria of valid data
  */
 uint8_t isDataInvalid(volatile uint16_t *buffer);
-uint16_t convertToTemprature(uint16_t *buffer);
+uint16_t convertToTemprature(volatile uint16_t *buffer);
 void __handleSPI_RxCallback(SPI_HandleTypeDef *hspi);
 
 volatile uint16_t getTemperature1(void) {
@@ -131,7 +131,7 @@ uint8_t isDataInvalid(volatile uint16_t *buffer) {
 	return ((*buffer) >> 2) & 0b0000000000000001;
 }
 
-uint16_t convertToTemprature(uint16_t *buffer) {
+uint16_t convertToTemprature(volatile uint16_t *buffer) {
 	/*Read data out of first sensor
 	 * First bit always 0 last 2 too
 	 * Third last bit is 1 when no sensor is connected
