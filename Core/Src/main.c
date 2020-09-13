@@ -21,8 +21,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "FreeRTOS.h"
-#include "semphr.h"
 #include "task.h"
+#include "queue.h"
+#include "semphr.h"
 
 /* Private includes ----------------------------------------------------------*/
 #include "config.h"
@@ -78,13 +79,15 @@ void InitSystem(void) {
 }
 
 void InitOS(void) {
-	xSystemMonitorTask =  xTaskCreateStatic(systemMonitorTask, SYSTEM_MONITOR_NAME, SYSTEM_MONITOR_STACK_SIZE, NULL, SYSTEM_MONITOR_PRIORITY, xSystemMonitorStack, &xSystemMonitorBuffer);
+	xSystemMonitorTask = xTaskCreateStatic(systemMonitorTask, SYSTEM_MONITOR_NAME, SYSTEM_MONITOR_STACK_SIZE, NULL, SYSTEM_MONITOR_PRIORITY, xSystemMonitorStack, &xSystemMonitorBuffer);
 	
-	xInputHandlerTask =  xTaskCreateStatic(vInputTask, INPUT_HANDLER_NAME, INPUT_HANDLER_STACK_SIZE, NULL, INPUT_HANDLER_PRIORITY, xInputHandlerStack, &xInputHandlerBuffer);
+	xInputHandlerTask = xTaskCreateStatic(vInputTask, INPUT_HANDLER_NAME, INPUT_HANDLER_STACK_SIZE, NULL, INPUT_HANDLER_PRIORITY, xInputHandlerStack, &xInputHandlerBuffer);
 
-	xLCDTask =  xTaskCreateStatic(vLCDTask, LCD_NAME, LCD_STACK_SIZE, NULL, LCD_PRIORITY, xLCDStack, &xLCDBuffer);
+	xLCDTask = xTaskCreateStatic(vLCDTask, LCD_NAME, LCD_STACK_SIZE, NULL, LCD_PRIORITY, xLCDStack, &xLCDBuffer);
 
-	xMenuTask =  xTaskCreateStatic(vMenuTask, MENU_NAME, MENU_STACK_SIZE, NULL, MENU_PRIORITY, xMenuStack, &xMenuBuffer);
+	xMenuTask = xTaskCreateStatic(vMenuTask, MENU_NAME, MENU_STACK_SIZE, NULL, MENU_PRIORITY, xMenuStack, &xMenuBuffer);
+
+	xControlTask = xTaskCreateStatic(vControlTask, CONTROL_NAME, CONTROL_STACK_SIZE, NULL, CONTROL_PRIORITY, xControlStack, &xControlBuffer);
 
 	xControlTask =  xTaskCreateStatic(vControlTask, CONTROL_NAME, CONTROL_STACK_SIZE, NULL, CONTROL_PRIORITY, xControlStack, &xControlBuffer);
 
