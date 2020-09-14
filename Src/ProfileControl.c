@@ -38,6 +38,7 @@ void vReflowControlTask(void * argument) {
 			profileState = NON;
 			setTemperature(0);
 			setDisplayMode(DISPLAY_MENU | DISPLAY_UPADTE); // Set back to menu mode
+			setOvenState(STATE_NONE);
 			vTaskSuspend(xControlInputTask);	// Suspend Input Handle Task
 			vTaskDelete(xReflowControlTask);
 			// *ToDo* Fix crashing at Task delete

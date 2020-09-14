@@ -41,6 +41,13 @@ enum DisplayMode {
 	DISPLAY_ALL			= 0xFF		///< all events
 };
 
+enum OvenState {
+	STATE_NONE			=0,			///< Oven is currently doing nothing/displaying Menu
+	STATE_BAKE			=1 << 0,	///< Bake operation is running
+	STATE_REFLOW		=1 << 1,	///< Reflow operation is running
+	STATE_ALL			= 0xFF		///< all states
+};
+
 /**
  * Get the current display mode without waiting
  * 
@@ -67,5 +74,20 @@ EventBits_t setDisplayUpdate();
  * @return EventBits_t 
  */
 EventBits_t clearDisplayUpdate();
+
+/**
+ * Get the current oven state without waiting
+ * 
+ * @return EventBits_t 
+ */
+EventBits_t getOvenState();
+/**
+ * Override the oven state
+ * @note clears the update flag
+ * 
+ * @param mode 
+ * @return EventBits_t 
+ */
+EventBits_t setOvenState(EventBits_t mode);
 
 #endif /* OVENMODE_H_ */

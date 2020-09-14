@@ -127,4 +127,6 @@ static StaticSemaphore_t xLCDMutexBuffer __attribute__((unused));
 SemaphoreHandle_t xLCDMutex;
 
 EventGroupHandle_t modeEventGroup;
+EventGroupHandle_t stateEventGroup;
+
 #endif /* TASKS_H_ */

@@ -37,7 +37,11 @@ EventBits_t clearDisplayUpdate() {
 	return xEventGroupGetBits(modeEventGroup);
 }
 
-EventBits_t clearUpdate() {
-	if(getMode() & EVENT_UPADTE)
-		setMode(getMode() & (EVENT_ALL ^ EVENT_UPADTE));
+EventBits_t getOvenState() {
+	return xEventGroupGetBits(stateEventGroup);
+}
+
+EventBits_t setOvenState(EventBits_t mode) {
+	xEventGroupClearBits(stateEventGroup, STATE_ALL);
+	return xEventGroupSetBits(stateEventGroup, mode);
 }

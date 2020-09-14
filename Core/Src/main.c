@@ -98,6 +98,8 @@ void InitOS(void) {
 	xLCDMutex = xSemaphoreCreateMutexStatic(&xLCDMutexBuffer);
 
 	modeEventGroup = xEventGroupCreate();
+	stateEventGroup = xEventGroupCreate();
+
 	/* Start scheduler */
 	vTaskStartScheduler();
 }

@@ -242,8 +242,17 @@ void controlBake() {
 			vTaskResume(xControlInputTask);
 		}
 		if(event & DISPLAY_REFLOW) {
+			HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
+			HAL_GPIO_WritePin(LD_Power_GPIO_Port, LD_Power_Pin, GPIO_PIN_SET);
 			break;
 		}
+
+		if(getOvenState() != 0b01) {
+			HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
+			HAL_GPIO_WritePin(LD_Power_GPIO_Port, LD_Power_Pin, GPIO_PIN_SET);
+			break;
+		}
+
 	}
 }
 
@@ -278,6 +287,14 @@ void controlReflow() {
 			vTaskResume(xControlInputTask);
 		}
 		if(event & DISPLAY_BAKE) {
+			HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
+			HAL_GPIO_WritePin(LD_Power_GPIO_Port, LD_Power_Pin, GPIO_PIN_SET);
+			break;
+		}
+
+		if(getOvenState() != 0b10) {
+			HAL_GPIO_WritePin(HEATER_GPIO_Port, HEATER_Pin, HEATER_POLARITY);
+			HAL_GPIO_WritePin(LD_Power_GPIO_Port, LD_Power_Pin, GPIO_PIN_SET);
 			break;
 		}
 	}

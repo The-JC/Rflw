@@ -28,11 +28,17 @@
 
 void menuValChanger(uint32_t *ptr);
 
+uint16_t calculateMenuLength(const struct MENU_t *menu, uint8_t menuDepth);
+
 static void Menu_RunBake();
 static void Menu_RunReflow(uint32_t curve, uint32_t length);
+static void Menu_StopReflow();
 
 uint32_t *valChangerOld;
 uint32_t valChangerNew;
+
+#define ISREFLOWSTATE getOvenState() & STATE_REFLOW
+#define ISBAKESTATE getOvenState() & STATE_BAKE
 
 static const struct OPTION_t reflowCurve = {
 		.type = MENU_TYPE_OPTION,
@@ -140,9 +146,9 @@ void vMenuTask(void * argument) {
 	const portTickType xDelay = 100 / portTICK_RATE_MS;
 //	const struct MENU_t *menu;
 
-	menuDepth = 0;
-	menuPosStack[menuDepth] = 0;
-	menuStack[menuDepth] = &mainMenu;
+	menuDepth = 0; // How deep we are in sub menus
+	menuPosStack[menuDepth] = 0; // On which line we are with the cursor
+	menuStack[menuDepth] = &mainMenu; // Which menu is on the depths
 
 //	menuDraw();
 	setDisplayMode(DISPLAY_MENU | DISPLAY_UPADTE);
@@ -159,7 +165,7 @@ void vMenuTask(void * argument) {
 				break;
 			case PRESS_DOWN:
 				newPos = menuPosStack[menuDepth] + 1; // increase index of menu contents
-				if(newPos < menuStack[menuDepth]->num + (menuDepth == 0 ? 0:1)) // Check if new index is within limits of menu
+				if(newPos < calculateMenuLength(menuStack[menuDepth], menuDepth)) // Check if new index is within limits of menu
 					menuPosStack[menuDepth] = newPos;
 				break;
 			case PRESS_SELECT:
@@ -186,6 +192,14 @@ void menuAction() {
 			return;
 		} else {
 			--pos; // Pos-1 to comensate the Back button menu offset
+		}
+	}
+	// Check for the stop button in the reflow menu
+	if(menu == (const struct MENU_t*)&reflowCurve && ISREFLOWSTATE) {
+		if(pos == menu->num) {
+			--menuPosStack[menuDepth]; // decrease pos to compensate that the button will disappear 
+			Menu_StopReflow();
+			return;
 		}
 	}
 
@@ -283,46 +297,65 @@ void menuDraw() {
 	uint8_t drawPos;
 	const struct MENU_t *menu;
 
-	uint8_t i, offset = 0;
+	uint8_t i=0;
+	uint8_t offset=0;
+	uint8_t submenu=0;
 	menuPos = menuPosStack[menuDepth];
 	menu = menuStack[menuDepth];
 
 	SSD1306_Fill(BLACK);
 
-	if(menuPos < 2) {
+	// When cursor position is lower then 2 draw from top
+	if(menuPos < 3) {
 		drawPos=0;
 	} else {
-		drawPos = menuPos-2;
+		drawPos = menuPos-3;
 	}
 
-	if(menuPos > menu->num -3) {
-		drawPos = (menu->num > 5) ? (menu->num - 5) : 0;
-	}
-
+	// Put the menu name in the first line.
 	SSD1306_DrawFilledRectangle(0, 0, 127, 10, WHITE);
 	SSD1306_GotoY(1);
 	SSD1306_PutSAlign(menu->name, &Font_7x10, BLACK, HORIZONTAL_CENTER);
 
-	if(menu != &mainMenu && drawPos==0) {
-		SSD1306_GotoXY(5, 12+1);
-		if(menuPos == 0) {
-			SSD1306_DrawFilledRectangle(0, 12, 127, 10, WHITE);
-			SSD1306_PutS("Back", &Font_7x10, BLACK);
-		} else {
-			SSD1306_PutS("Back", &Font_7x10, WHITE);
+	// Check if this is a submenu
+	if(menu != &mainMenu) {
+		// When in a submenu put the back button in the second line.
+		if(drawPos==0) {
+			SSD1306_GotoXY(5, 12+1);
+			if(menuPos == 0) {
+				SSD1306_DrawFilledRectangle(0, 12, 127, 10, WHITE);
+				SSD1306_PutS("Back", &Font_7x10, BLACK);
+			} else {
+				SSD1306_PutS("Back", &Font_7x10, WHITE);
+			}
+			offset = 1;
 		}
-		offset = 1;
+		// Activate submenu flag, this will offset the menu array read by -1
+		submenu = 1;
 	}
-
+	
+	// Start with one of we are on the top of a sub menu to account for the extra Back button
 	for(i = offset; i < 4; i++) {
-		if(drawPos + i - offset >= menu->num) break;
+		if(drawPos + i - submenu >= menu->num) break; // break loop when max number of menu elements is reached
 		SSD1306_GotoXY(5, 12+12*i+1);
 
 		if(drawPos+i == menuPos) {
 			SSD1306_DrawFilledRectangle(0, 12+12*i, 127, 10, WHITE);
-			SSD1306_PutS(menu->contents[drawPos+i-offset].text, &Font_7x10, BLACK);
+			SSD1306_PutS(menu->contents[drawPos+i-submenu].text, &Font_7x10, BLACK);
 		} else {
-			SSD1306_PutS(menu->contents[drawPos+i-offset].text, &Font_7x10, WHITE);
+			SSD1306_PutS(menu->contents[drawPos+i-submenu].text, &Font_7x10, WHITE);
+		}
+	}
+
+	if(menu == ((const struct MENU_t*)&reflowCurve)){
+		if(ISREFLOWSTATE) {
+			SSD1306_GotoXY(10, 12+12*i+1);
+			if(drawPos+i == menuPos) {
+				SSD1306_DrawFilledRectangle(0, 12+12*i, 127, 10, WHITE);
+				SSD1306_PutS("Stop", &Font_7x10, BLACK);
+			} else {
+				SSD1306_PutS("Stop", &Font_7x10, WHITE);
+			}
 		}
 	}
 
@@ -337,12 +370,32 @@ void menuDraw() {
 	xSemaphoreGive(xLCDMutex);
 }
 
+uint16_t calculateMenuLength(const struct MENU_t *menu, uint8_t menuDepth) {
+	uint8_t offset=0;
+	if(menu == (const struct MENU_t*)&reflowCurve && ISREFLOWSTATE) {
+		++offset;
+	}
+	return menu->num + (menuDepth == 0 ? 0:1) + offset;
+}
+
 void Menu_RunBake() {
 	setDisplayMode(DISPLAY_BAKE | DISPLAY_UPADTE);
+	setOvenState(STATE_BAKE);
 }
 
 void Menu_RunReflow(uint32_t curve, uint32_t length) {
 	currentCurvePtr = (DATAPOINT_t*) curve;
 	currentCurveLength = length;
 	setDisplayMode(DISPLAY_REFLOW | DISPLAY_UPADTE);
+	setOvenState(STATE_REFLOW);
+}
+
+void Menu_StopReflow() {
+	setDisplayMode(DISPLAY_MENU | DISPLAY_UPADTE);
+	setOvenState(STATE_NONE);
+	setTemperature(0);
+	vTaskSuspend(xControlInputTask);
+	vTaskDelete(xReflowControlTask);
+	currentCurvePtr = NULL;
+	currentCurveLength = 0;
 }
