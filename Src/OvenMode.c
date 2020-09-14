@@ -18,17 +18,23 @@
 
 #include "OvenMode.h"
 
-EventBits_t getMode() {
+EventBits_t getDisplayMode() {
 	return xEventGroupGetBits(modeEventGroup);
 }
 
-EventBits_t setMode(EventBits_t mode) {
-	xEventGroupClearBits(modeEventGroup, EVENT_ALL);
+EventBits_t setDisplayMode(EventBits_t mode) {
+	xEventGroupClearBits(modeEventGroup, DISPLAY_ALL);
 	return xEventGroupSetBits(modeEventGroup, mode);
 }
 
-EventBits_t setUpdate() {
-	return setMode(getMode() | EVENT_UPADTE);
+EventBits_t setDisplayUpdate() {
+	return setDisplayMode(getDisplayMode() | DISPLAY_UPADTE);
+}
+
+EventBits_t clearDisplayUpdate() {
+	if(getDisplayMode() & DISPLAY_UPADTE)
+		setDisplayMode(getDisplayMode() & (DISPLAY_ALL ^ DISPLAY_UPADTE));
+	return xEventGroupGetBits(modeEventGroup);
 }
 
 EventBits_t clearUpdate() {

@@ -27,6 +27,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "event_groups.h"
 
 /** 
  * vSystemMonitorTask
@@ -125,4 +126,5 @@ SemaphoreHandle_t xSPIMutex;
 static StaticSemaphore_t xLCDMutexBuffer __attribute__((unused));
 SemaphoreHandle_t xLCDMutex;
 
+EventGroupHandle_t modeEventGroup;
 #endif /* TASKS_H_ */

@@ -58,7 +58,7 @@ void vLCDTask(void * argument) {
 	while(1) {
 		vTaskDelay(xDelay);
 
-		event = xEventGroupWaitBits(modeEventGroup, EVENT_MENU | EVENT_BAKE | EVENT_REFLOW | EVENT_VALCHANGE | EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
+		event = xEventGroupWaitBits(modeEventGroup, DISPLAY_MENU | DISPLAY_BAKE | DISPLAY_REFLOW | DISPLAY_VALCHANGE | DISPLAY_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
 		checkDisplayEvent(event);
 	}
 }
@@ -92,12 +92,12 @@ void displayBake() {
 
 		SSD1306_UpdateScreen();
 
-		event = getMode();
-		if(event & ~(EVENT_BAKE | EVENT_UPADTE)) {
+		event = getDisplayMode();
+		if(event & ~(DISPLAY_BAKE | DISPLAY_UPADTE)) {
 			break; // Cancel the while loop to check the display event for new instructions
-		} else if(!(event & EVENT_UPADTE)) {
-			xEventGroupWaitBits(modeEventGroup, EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
-			clearUpdate();
+		} else if(!(event & DISPLAY_UPADTE)) {
+			xEventGroupWaitBits(modeEventGroup, DISPLAY_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
+			clearDisplayUpdate();
 		}
 	}
 
@@ -109,6 +109,7 @@ void displayReflow() {
 	char buffer[10];
 
 	xSemaphoreTake(xLCDMutex, portMAX_DELAY);
+
 
 	const TickType_t xDelay = 100 / portTICK_PERIOD_MS; // 100ms
 	TickType_t startTick = xTaskGetTickCount();
@@ -155,12 +156,12 @@ void displayReflow() {
 
 		SSD1306_UpdateScreen();
 
-		event = getMode();
-		if(event & ~(EVENT_REFLOW | EVENT_UPADTE)) {
+		event = getDisplayMode();
+		if(event & ~(DISPLAY_REFLOW | DISPLAY_UPADTE)) {
 			break; // Cancel the while loop to check the display event for new instructions
-		} else if(!(event & EVENT_UPADTE)) {
+		} else if(!(event & DISPLAY_UPADTE)) {
 			// xEventGroupWaitBits(modeEventGroup, EVENT_UPADTE, pdFALSE, pdFALSE, portMAX_DELAY);
-			clearUpdate();
+			clearDisplayUpdate();
 		}
 	}
 
@@ -169,21 +170,21 @@ void displayReflow() {
 
 void checkDisplayEvent(EventBits_t event) {
 	switch (event) {
-		case EVENT_BAKE | EVENT_UPADTE:
-			clearUpdate();
+		case DISPLAY_BAKE | DISPLAY_UPADTE:
+			clearDisplayUpdate();
 			displayBake();
 			break;
-		case EVENT_REFLOW | EVENT_UPADTE:
-			clearUpdate();
+		case DISPLAY_REFLOW | DISPLAY_UPADTE:
+			clearDisplayUpdate();
 			displayReflow();
 			break;
-		case EVENT_VALCHANGE | EVENT_UPADTE:
-			clearUpdate();
+		case DISPLAY_VALCHANGE | DISPLAY_UPADTE:
+			clearDisplayUpdate();
 			valChangerDraw();
 			break;
-		case EVENT_MENU | EVENT_UPADTE:
+		case DISPLAY_MENU | DISPLAY_UPADTE:
 		default:
-			clearUpdate();
+			clearDisplayUpdate();
 			menuDraw();
 			break;
 	}

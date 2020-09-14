@@ -37,14 +37,14 @@ void vReflowControlTask(void * argument) {
 			currentPointPtr = NULL;
 			profileState = NON;
 			setTemperature(0);
-			setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
+			setDisplayMode(DISPLAY_MENU | DISPLAY_UPADTE); // Set back to menu mode
 			vTaskSuspend(xControlInputTask);	// Suspend Input Handle Task
 			vTaskDelete(xReflowControlTask);
 			// *ToDo* Fix crashing at Task delete
 			break;
 		}
 		setTemperature(currentPointPtr->temperature);
-		setUpdate();
+		setDisplayUpdate();
 
 		profileState = HEATING;
 

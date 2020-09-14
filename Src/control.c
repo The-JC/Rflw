@@ -164,13 +164,13 @@ void vControlTask(void * argument) {
 	const TickType_t xDelay = 1 / portTICK_PERIOD_MS; // 1ms
 	while(1) {
 		vTaskDelay(xDelay);
-		EventBits_t event = xEventGroupWaitBits(modeEventGroup, EVENT_BAKE | EVENT_REFLOW, pdFALSE, pdFALSE, portMAX_DELAY);
+		EventBits_t event = xEventGroupWaitBits(modeEventGroup, DISPLAY_BAKE | DISPLAY_REFLOW, pdFALSE, pdFALSE, portMAX_DELAY);
 
-		switch (event & (EVENT_BAKE | EVENT_REFLOW)) {
-			case EVENT_BAKE:
+		switch (event & (DISPLAY_BAKE | DISPLAY_REFLOW)) {
+			case DISPLAY_BAKE:
 				controlBake();
 				break;
-			case EVENT_REFLOW:
+			case DISPLAY_REFLOW:
 				controlReflow();
 				break;
 			default:
@@ -191,19 +191,19 @@ void vControlInputTask(void * argument) {
 		uint8_t event = inputGetEvent();
 		switch (event) {
 			case PRESS_UP:
-				if(getMode() & EVENT_REFLOW)
+				if(getDisplayMode() & DISPLAY_REFLOW)
 					break;
 				if(w<CONTROL_MAX_TEMP) w+=10;
-				setUpdate();
+				setDisplayUpdate();
 				break;
 			case PRESS_DOWN:
-				if(getMode() & EVENT_REFLOW)
+				if(getDisplayMode() & DISPLAY_REFLOW)
 					break;
 				if(w>0) w-=10;
-				setUpdate();
+				setDisplayUpdate();
 				break;
 			case PRESS_SELECT:
-				setMode(EVENT_MENU | EVENT_UPADTE); // Set back to menu mode
+				setDisplayMode(DISPLAY_MENU | DISPLAY_UPADTE); // Set back to menu mode
 				vTaskSuspend(xControlInputTask);
 				break;
 			default:
@@ -224,7 +224,7 @@ void controlBake() {
 		HAL_GPIO_TogglePin(LD_Power_GPIO_Port, LD_Power_Pin);
 		readTemperature();
 		uint8_t p = control(getTemperature()/4);
-		setUpdate();
+		setDisplayUpdate();
 
 		const TickType_t xDelayOffset = (xDelay * p)/100;
 
@@ -237,11 +237,11 @@ void controlBake() {
 		vTaskDelay(xDelay - xDelayOffset);
 
 		EventBits_t event = xEventGroupGetBits(modeEventGroup);
-		if(event & EVENT_BAKE) {
-			clearUpdate();
+		if(event & DISPLAY_BAKE) {
+			clearDisplayUpdate();
 			vTaskResume(xControlInputTask);
 		}
-		if(event & EVENT_REFLOW) {
+		if(event & DISPLAY_REFLOW) {
 			break;
 		}
 	}
@@ -260,7 +260,7 @@ void controlReflow() {
 		readTemperature();
 		
 		uint8_t p = control(getTemperature()/4);
-		setUpdate();
+		setDisplayUpdate();
 
 		const TickType_t xDelayOffset = (xDelay * p)/100;
 
@@ -273,11 +273,11 @@ void controlReflow() {
 		vTaskDelay(xDelay - xDelayOffset);
 
 		EventBits_t event = xEventGroupGetBits(modeEventGroup);
-		if(event & EVENT_REFLOW) {
-			clearUpdate();
+		if(event & DISPLAY_REFLOW) {
+			clearDisplayUpdate();
 			vTaskResume(xControlInputTask);
 		}
-		if(event & EVENT_BAKE) {
+		if(event & DISPLAY_BAKE) {
 			break;
 		}
 	}

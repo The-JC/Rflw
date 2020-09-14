@@ -18,12 +18,8 @@
 
 #include "Reflow.h"
 
-#include "OvenMode.h"
-#include "control.h"
-
 int main(void) {
 	HAL_Init();
 	InitSystem();
-	modeEventGroup = xEventGroupCreate();
 	InitOS(); // Start scheduler
 }

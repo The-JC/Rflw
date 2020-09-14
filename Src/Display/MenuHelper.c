@@ -145,11 +145,11 @@ void vMenuTask(void * argument) {
 	menuStack[menuDepth] = &mainMenu;
 
 //	menuDraw();
-	setMode(EVENT_MENU | EVENT_UPADTE);
+	setDisplayMode(DISPLAY_MENU | DISPLAY_UPADTE);
 
 	while(1) {
 		vTaskDelay(xDelay);
-		xEventGroupWaitBits(modeEventGroup, EVENT_MENU, pdFALSE, pdFALSE, portMAX_DELAY);
+		xEventGroupWaitBits(modeEventGroup, DISPLAY_MENU, pdFALSE, pdFALSE, portMAX_DELAY);
 
 		uint8_t event = inputGetEvent();
 		switch (event) {
@@ -168,7 +168,7 @@ void vMenuTask(void * argument) {
 			default:
 				break;
 		}
-		setUpdate();
+		setDisplayUpdate();
 //		menuDraw();
 	}
 }
@@ -228,7 +228,7 @@ void menuValChanger(uint32_t *ptr) {
 	valChangerOld = ptr;
 	valChangerNew = *ptr;
 
-	setMode(EVENT_VALCHANGE | EVENT_UPADTE);
+	setDisplayMode(DISPLAY_VALCHANGE | DISPLAY_UPADTE);
 
 	const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
 	while(!done) {
@@ -237,15 +237,15 @@ void menuValChanger(uint32_t *ptr) {
 		switch(event) {
 			case PRESS_UP:
 				++valChangerNew;
-				setUpdate();
+				setDisplayUpdate();
 				break;
 			case PRESS_DOWN:
 				--valChangerNew;
-				setUpdate();
+				setDisplayUpdate();
 				break;
 			case PRESS_SELECT:
 				*ptr = valChangerNew;
-				setMode(EVENT_MENU | EVENT_UPADTE);
+				setDisplayMode(DISPLAY_MENU | DISPLAY_UPADTE);
 				done = 1;
 				break;
 			default:
@@ -338,11 +338,11 @@ void menuDraw() {
 }
 
 void Menu_RunBake() {
-	setMode(EVENT_BAKE | EVENT_UPADTE);
+	setDisplayMode(DISPLAY_BAKE | DISPLAY_UPADTE);
 }
 
 void Menu_RunReflow(uint32_t curve, uint32_t length) {
 	currentCurvePtr = (DATAPOINT_t*) curve;
 	currentCurveLength = length;
-	setMode(EVENT_REFLOW | EVENT_UPADTE);
+	setDisplayMode(DISPLAY_REFLOW | DISPLAY_UPADTE);
 }

@@ -26,47 +26,46 @@
 
 #include "FreeRTOS.h"
 #include "event_groups.h"
-
-EventGroupHandle_t modeEventGroup;
+#include "memory.h"
 
 /**
  * Modus of display
  */
 enum DisplayMode {
-	EVENT_NONE		=0,			///< Nothing is displayed
-	EVENT_MENU		=1 << 0,	///< The menu is displayed
-	EVENT_BAKE		=1 << 1,	///< The Bake overlay is shown
-	EVENT_REFLOW	=1 << 2,	///< The Reflow overlay is shown
-	EVENT_VALCHANGE	=1 << 3,	///< Value change overlay
-	EVENT_UPADTE	=1 << 4,	///< Signalise the mode was updated
-	EVENT_ALL		=0xF		///< all events
+	DISPLAY_NONE		=0,			///< Nothing is displayed
+	DISPLAY_MENU		=1 << 0,	///< The menu is displayed
+	DISPLAY_BAKE		=1 << 1,	///< The Bake overlay is shown
+	DISPLAY_REFLOW		=1 << 2,	///< The Reflow overlay is shown
+	DISPLAY_VALCHANGE	=1 << 3,	///< Value change overlay
+	DISPLAY_UPADTE		=1 << 4,	///< Signalise the mode was updated
+	DISPLAY_ALL			= 0xFF		///< all events
 };
 
 /**
- * Get the current mode without waiting
+ * Get the current display mode without waiting
  * 
  * @return EventBits_t 
  */
-EventBits_t getMode();
+EventBits_t getDisplayMode();
 /**
- * Override all modes and display events
+ * Override all dipslay modes and display events
  * @note clears the update flag
  * 
  * @param mode 
  * @return EventBits_t 
  */
-EventBits_t setMode(EventBits_t mode);
+EventBits_t setDisplayMode(EventBits_t mode);
 /**
  * Sets the update flag
  * 
  * @return EventBits_t 
  */
-EventBits_t setUpdate();
+EventBits_t setDisplayUpdate();
 /**
  * Clears the update flag without clearing any others
  * 
  * @return EventBits_t 
  */
-EventBits_t clearUpdate();
+EventBits_t clearDisplayUpdate();
 
 #endif /* OVENMODE_H_ */
