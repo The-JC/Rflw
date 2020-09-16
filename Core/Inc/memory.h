@@ -60,7 +60,7 @@ TaskHandle_t xInputHandlerTask;
  * 
  */
 #define LCD_NAME "LCD"
-#define LCD_PRIORITY tskIDLE_PRIORITY+0
+#define LCD_PRIORITY tskIDLE_PRIORITY+1
 #define LCD_STACK_SIZE 128
 static StaticTask_t xLCDBuffer __attribute__((unused));
 static StackType_t xLCDStack [LCD_STACK_SIZE] __attribute__((unused));
@@ -72,7 +72,7 @@ TaskHandle_t xLCDTask;
  * 
  */
 #define MENU_NAME "Menu"
-#define MENU_PRIORITY tskIDLE_PRIORITY+1
+#define MENU_PRIORITY tskIDLE_PRIORITY+2
 #define MENU_STACK_SIZE 128
 static StaticTask_t xMenuBuffer __attribute__((unused));
 static StackType_t xMenuStack [MENU_STACK_SIZE] __attribute__((unused));
@@ -96,7 +96,7 @@ TaskHandle_t xControlTask;
  * 
  */
 #define CONTROL_INPUT_NAME "ControlInput"
-#define CONTROL_INPUT_PRIORITY tskIDLE_PRIORITY+1
+#define CONTROL_INPUT_PRIORITY tskIDLE_PRIORITY+2
 #define CONTROL_INPUT_STACK_SIZE 64
 static StaticTask_t xControlInputBuffer __attribute__((unused));
 static StackType_t xControlInputStack [CONTROL_INPUT_STACK_SIZE] __attribute__((unused));
@@ -108,7 +108,7 @@ TaskHandle_t xControlInputTask;
  * 
  */
 #define REFLOW_CONTROL_NAME "ReflowControl"
-#define REFLOW_CONTROL_PRIORITY tskIDLE_PRIORITY+1
+#define REFLOW_CONTROL_PRIORITY tskIDLE_PRIORITY+2
 #define REFLOW_CONTROL_STACK_SIZE 128
 static StaticTask_t xReflowControlBuffer __attribute__((unused));
 static StackType_t xReflowControlStack [REFLOW_CONTROL_STACK_SIZE] __attribute__((unused));
