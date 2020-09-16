@@ -24,11 +24,13 @@
 			"configFiles": [
 				"tools/stm32.cfg"
 			],
-			"gdbpath": "/usr/bin/gdb-multiarch"
+			"gdbpath": "/usr/bin/gdb-multiarch",
+			"device": "STM32F103xx"
+			// "svdFile": "${workspaceRoot}/STM32F103xx.svd"
 		},
 		{
 			"name": "GDB",
-			"type": "gdb",
+			"type": "gdb-multiarch",
 			"request": "launch",
 			"cwd": "${workspaceRoot}",
 			"target": "${workspaceRoot}/build/Rflw.elf",
