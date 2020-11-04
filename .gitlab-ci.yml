@@ -1,20 +1,23 @@
 # sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi gdb-arm-none-eabi openocd
 
 image:
-    name: stm32
+    name: debian
     
 variables:
     GIT_SUBMODULE_STRATEGY: recursive
 
+before_script:  
+    - apt-get update -y
 
 stages:
     - pages
     - build
-    - test
 
 build:
     stage: build
-    script: time CLEANBUILD=true ./build.sh
+    script:
+        - apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake 
+        - time CLEANBUILD=true ./build.sh
     cache:
         key: build-cache
         paths:
@@ -25,15 +28,12 @@ build:
             - build/Rflw.bin
         expire_in: 1 week
 
-test:
-    stage: test
-    script: file build/Rflw.bin
-
 pages:
     stage: pages
     script: 
-    - doxygen Rflw
-    - mv docs/html/ public/
+        - apt-get install -y doxygen
+        - doxygen Rflw
+        - mv docs/html/ public/
     artifacts:
         paths:
         - public
