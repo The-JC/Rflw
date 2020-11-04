@@ -1,11 +1,14 @@
 # sudo apt-get install gcc-arm-none-eabi binutils-arm-none-eabi gdb-arm-none-eabi openocd
 
 image:
-    name: stm32
+    name: debian
     
 variables:
     GIT_SUBMODULE_STRATEGY: recursive
 
+before_script:  
+    - apt-get update
+    - apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake
 
 stages:
     - pages
