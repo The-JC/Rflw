@@ -7,8 +7,8 @@ variables:
     GIT_SUBMODULE_STRATEGY: recursive
 
 before_script:  
-    - apt-get update
-    - apt-get install gcc-arm-none-eabi binutils-arm-none-eabi cmake
+    - apt-get update -y
+    - apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake
 
 stages:
     - pages
