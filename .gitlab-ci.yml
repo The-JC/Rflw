@@ -13,7 +13,6 @@ before_script:
 stages:
     - pages
     - build
-    - test
 
 build:
     stage: build
@@ -27,10 +26,6 @@ build:
         paths:
             - build/Rflw.bin
         expire_in: 1 week
-
-test:
-    stage: test
-    script: file build/Rflw.bin
 
 pages:
     stage: pages
