@@ -8,7 +8,6 @@ variables:
 
 before_script:  
     - apt-get update -y
-    - apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake
 
 stages:
     - pages
@@ -16,7 +15,9 @@ stages:
 
 build:
     stage: build
-    script: time CLEANBUILD=true ./build.sh
+    script:
+        - apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi cmake 
+        - time CLEANBUILD=true ./build.sh
     cache:
         key: build-cache
         paths:
@@ -30,8 +31,9 @@ build:
 pages:
     stage: pages
     script: 
-    - doxygen Rflw
-    - mv docs/html/ public/
+        - apt-get install -y doxygen
+        - doxygen Rflw
+        - mv docs/html/ public/
     artifacts:
         paths:
         - public
